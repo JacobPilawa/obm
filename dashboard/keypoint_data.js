@@ -240,7 +240,16 @@ function plateGroup(trial, platform) {
     });
   return g;
 }
+const groupCache = new WeakMap();
 export function buildKeypointGroups(trial, bat) {
+  if (!trial) return [];
+  let variants = groupCache.get(trial);
+  if (!variants) groupCache.set(trial, (variants = new Map()));
+  const key = bat || null;
+  if (!variants.has(key)) variants.set(key, computeKeypointGroups(trial, bat));
+  return variants.get(key);
+}
+function computeKeypointGroups(trial, bat) {
   if (!trial) return [];
   const pitch = trial.entry.discipline === "pitching",
     side = trial.entry.side || trial.metadata?.hitter_side || "R",

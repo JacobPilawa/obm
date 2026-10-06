@@ -116,7 +116,20 @@ function spec(id, title, unit, layer, source, items, note = "", focus = "") {
       }
     : null;
 }
+const quantityCache = new WeakMap();
 export function buildQuantities(trial, { includePublished = true } = {}) {
+  let cached = quantityCache.get(trial);
+  if (!cached) {
+    const all = computeQuantities(trial);
+    cached = {
+      all,
+      curated: all.filter((spec) => !spec.id.startsWith("published:")),
+    };
+    quantityCache.set(trial, cached);
+  }
+  return includePublished ? cached.all : cached.curated;
+}
+function computeQuantities(trial, { includePublished = true } = {}) {
   const pitch = trial.entry.discipline === "pitching",
     out = [];
   const put = (x) => {

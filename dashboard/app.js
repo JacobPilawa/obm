@@ -1,3 +1,6 @@
+import { TrialClient } from "./trial_client.js";
+import { buildQuantities } from "./quantities.js";
+import { buildKeypointGroups } from "./keypoint_data.js";
 import {
   initCohortControls,
   cohortState,
@@ -2010,11 +2013,7 @@ window.__prepareMovie = async (state) => {
     compareFocus = new Map(state.focuses);
     compareEntries = await Promise.all(
       state.entries.map(async (item) => {
-        const response = await fetch(
-          "/api/trial?id=" + encodeURIComponent(item.id),
-        );
-        if (!response.ok) throw Error("Could not load compared replay.");
-        const data = await response.json();
+        const data = await trialClient.load(item.id);
         return {
           ...makeCompareEntry(data, item.colorIndex),
           options: item.options,
@@ -2398,8 +2397,54 @@ function setKind(next) {
   configureCatalogFilters();
   renderCatalog();
 }
+const trialClient = new TrialClient();
+let prefetchSerial = 0,
+  hoverPrefetchTimer;
+const whenIdle = () =>
+  new Promise((resolve) => {
+    if (window.requestIdleCallback)
+      requestIdleCallback(resolve, { timeout: 1000 });
+    else setTimeout(resolve, 100);
+  });
+function prepareTrial(data) {
+  const bat = data.entry.discipline === "hitting" ? batKinematics(data) : null;
+  buildPowerOverlay(data);
+  buildQuantities(data);
+  buildKeypointGroups(data, bat);
+}
+async function prefetchTrial(id) {
+  if (!id || movieRenderMode || performanceMode) return;
+  try {
+    const data = await trialClient.load(id, { priority: "low" });
+    await whenIdle();
+    prepareTrial(data);
+  } catch {
+    /* A speculative load must not disturb the current replay. */
+  }
+}
+async function prefetchNeighbors(id) {
+  const generation = ++prefetchSerial;
+  const nodes = [...$("catalogList").querySelectorAll(".catalogItem[data-id]")];
+  const index = nodes.findIndex((node) => node.dataset.id === id);
+  const choices = [nodes[index + 1], nodes[index + 2], nodes[index - 1]].filter(
+    Boolean,
+  );
+  for (const node of choices.slice(0, 2)) {
+    await whenIdle();
+    if (
+      generation !== prefetchSerial ||
+      movieRenderMode ||
+      performanceMode ||
+      compareMode
+    )
+      return;
+    await prefetchTrial(node.dataset.id);
+  }
+}
 let trialRequest = null;
 async function selectTrial(id) {
+  prefetchSerial++;
+  clearTimeout(hoverPrefetchTimer);
   trialRequest?.abort();
   const request = (trialRequest = new AbortController());
   const current = ++loadSerial;
@@ -2408,16 +2453,17 @@ async function selectTrial(id) {
   playing = false;
   $("playButton").textContent = "▶";
   renderCatalog();
-  $("stage").style.opacity = ".35";
-  $("trialTitle").textContent = "Loading recording…";
-  $("trialSubtitle").textContent =
-    "Reading this trial from local CSV and C3D files";
+  if (!trialClient.peek(id)) {
+    $("stage").style.opacity = ".35";
+    $("trialTitle").textContent = "Loading recording…";
+    $("trialSubtitle").textContent =
+      "Reading this trial from local CSV and C3D files";
+  }
   try {
-    const res = await fetch("/api/trial?id=" + encodeURIComponent(id), {
+    const data = await trialClient.load(id, {
       signal: request.signal,
+      priority: "high",
     });
-    const data = await res.json();
-    if (!res.ok) throw Error(data.error || "Trial unavailable");
     if (current !== loadSerial) return;
     trial = data;
     $("stage").style.opacity = "1";
@@ -2428,8 +2474,9 @@ async function selectTrial(id) {
       b.classList.toggle("active", active);
       b.setAttribute("aria-pressed", String(active));
     });
-    setKind(data.entry.discipline);
+    if (kind !== data.entry.discipline) setKind(data.entry.discipline);
     populateTrial();
+    if (!movieRenderMode) prefetchNeighbors(id);
   } catch (error) {
     if (error.name === "AbortError") return;
     if (current === loadSerial) {
@@ -3357,9 +3404,7 @@ async function toggleComparisonTrial(id) {
   const generation = compareGeneration;
   renderCatalog();
   try {
-    const response = await fetch("/api/trial?id=" + encodeURIComponent(id));
-    const data = await response.json();
-    if (!response.ok) throw Error(data.error || "Replay unavailable");
+    const data = await trialClient.load(id, { priority: "high" });
     if (
       !compareMode ||
       generation !== compareGeneration ||
@@ -3434,6 +3479,22 @@ function focusGeometry(which) {
   else drawFallback();
 }
 function bindControls() {
+  const intent = (event) => {
+    const item = event.target.closest(".catalogItem[data-id]");
+    if (
+      !item ||
+      item.dataset.id === selectedId ||
+      item.contains(event.relatedTarget)
+    )
+      return;
+    clearTimeout(hoverPrefetchTimer);
+    hoverPrefetchTimer = setTimeout(() => prefetchTrial(item.dataset.id), 100);
+  };
+  $("catalogList").addEventListener("pointerover", intent);
+  $("catalogList").addEventListener("focusin", intent);
+  $("catalogList").addEventListener("pointerleave", () =>
+    clearTimeout(hoverPrefetchTimer),
+  );
   for (const event of ["click", "input", "pointermove", "keydown"])
     document.addEventListener(event, invalidateViewer, {
       capture: true,

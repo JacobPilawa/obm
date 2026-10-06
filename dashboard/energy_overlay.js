@@ -332,7 +332,14 @@ const percentile = (values, p) => {
   return Math.max(values[Math.floor((values.length - 1) * p)], 1e-9);
 };
 
+const overlayCache = new WeakMap();
 export function buildPowerOverlay(trial) {
+  if (!trial) return null;
+  if (!overlayCache.has(trial))
+    overlayCache.set(trial, computePowerOverlay(trial));
+  return overlayCache.get(trial);
+}
+function computePowerOverlay(trial) {
   const discipline = trial?.entry?.discipline;
   if (
     !["pitching", "hitting"].includes(discipline) ||
