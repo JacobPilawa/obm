@@ -1,4 +1,24 @@
 {
+  "pelvisSource": {
+    "project": "OpenSim GUI",
+    "revision": "2ceb01b476e7e1a9b40fd1dfbced6eabb17bb935",
+    "license": "Apache-2.0",
+    "files": [
+      {
+        "url": "https://raw.githubusercontent.com/opensim-org/opensim-gui/2ceb01b476e7e1a9b40fd1dfbced6eabb17bb935/Gui/opensim/labs/Curling/Geometry/pelvis_l.vtp",
+        "sha256": "0c27e188c0980a1f8f99b8830633d9ea2d41703aa06d6edfb3cc82a23ad427ba"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/opensim-org/opensim-gui/2ceb01b476e7e1a9b40fd1dfbced6eabb17bb935/Gui/opensim/labs/Curling/Geometry/pelvis_r.vtp",
+        "sha256": "82c487fb4a78fb2d724f60e5a292122e527d3ab84f6ea160eeea12417f16938e"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/opensim-org/opensim-gui/2ceb01b476e7e1a9b40fd1dfbced6eabb17bb935/Gui/opensim/labs/Curling/Geometry/sacrum.vtp",
+        "sha256": "eff7a350f40a5ff22316a3e7494dc7215a912cb8f84d0935f83eaa7007fecb73"
+      }
+    ],
+    "modifications": "Pelvis and sacrum combined; one Loop subdivision pass; coordinate conversion; outer-width normalization and approximate hip-origin fitting."
+  },
   "source": "https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/partof_BP3D_4.0_obj_99.zip",
   "sourceSha256": "9fbc713fffeee924a5a657d9813d84d7eb957bded63adb854931dd5e3eb61c97",
   "credit": "BodyParts3D \u00a9 The Database Center for Life Science, licensed under CC Attribution 4.0 International",
@@ -205,19 +225,17 @@
     },
     "pelvis": {
       "positionOffset": 450804,
-      "vertexCount": 1866,
-      "indexOffset": 473196,
-      "indexCount": 10500,
-      "sourceElements": [
-        "FJ3152",
-        "FJ3288",
-        "FJ3393"
-      ]
+      "vertexCount": 1752,
+      "indexOffset": 471828,
+      "indexCount": 10368,
+      "sourceElements": [],
+      "source": "pelvisSource",
+      "widthConvention": "outer-width-equals-released-hip-spacing"
     },
     "chest": {
-      "positionOffset": 515196,
+      "positionOffset": 513300,
       "vertexCount": 10811,
-      "indexOffset": 644928,
+      "indexOffset": 643032,
       "indexCount": 29997,
       "sourceElements": [
         "FJ3153",
@@ -291,9 +309,9 @@
       ]
     },
     "lumbar": {
-      "positionOffset": 764916,
+      "positionOffset": 763020,
       "vertexCount": 4520,
-      "indexOffset": 819156,
+      "indexOffset": 817260,
       "indexCount": 7500,
       "sourceElements": [
         "FJ3157",
@@ -309,9 +327,9 @@
       ]
     },
     "cervical": {
-      "positionOffset": 849156,
+      "positionOffset": 847260,
       "vertexCount": 1415,
-      "indexOffset": 866136,
+      "indexOffset": 864240,
       "indexCount": 4800,
       "sourceElements": [
         "FJ3161",
@@ -330,9 +348,9 @@
       ]
     },
     "skull": {
-      "positionOffset": 885336,
+      "positionOffset": 883440,
       "vertexCount": 5688,
-      "indexOffset": 953592,
+      "indexOffset": 951696,
       "indexCount": 26007,
       "sourceElements": [
         "FJ1282",
@@ -381,5 +399,5 @@
       ]
     }
   },
-  "meshSha256": "bcc304e473a18eab3d3cef7214f8f29f33c3dbee6684228fffed85cb7dbd899b"
+  "meshSha256": "de9ed6bea0e7cb31a268889682260481e47f8fcda3def99c60e053bfb555579f"
 }

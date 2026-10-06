@@ -26,7 +26,7 @@ const origin = process.env.OBM_TEST_URL || "http://127.0.0.1:8773";
         response,
         body:
           (await response.text()) +
-          `\nwindow.__boneDebug=()=>({solo:anatomicalBody?.group.children.filter(m=>m.visible).map(m=>({name:m.name,position:m.position.toArray(),scale:m.scale.toArray()})),compare:[...compareViewer.parts.values()].map(p=>({id:p.entry.id,enabled:p.entry.options.bones,visible:p.anatomy.group.visible,meshes:p.anatomy.group.children.filter(m=>m.visible).length}))});`,
+          `\nwindow.__boneDebug=()=>({solo:anatomicalBody?.group.children.filter(m=>m.visible).map(m=>({name:m.name,position:m.position.toArray(),scale:m.scale.toArray(),localSize:new THREE.Box3().setFromBufferAttribute(m.geometry.getAttribute("position")).getSize(new THREE.Vector3()).toArray()})),compare:[...compareViewer.parts.values()].map(p=>({id:p.entry.id,enabled:p.entry.options.bones,visible:p.anatomy.group.visible,meshes:p.anatomy.group.children.filter(m=>m.visible).length}))});`,
       });
     });
     await page.goto(origin);
@@ -44,6 +44,21 @@ const origin = process.env.OBM_TEST_URL || "http://127.0.0.1:8773";
     await toggleBody("showBones");
     await page.waitForFunction(() => window.__boneDebug().solo.length >= 12);
     assert.equal(requests.length, 2, "Atlas uses two small static files");
+    const checkPelvis = async () => {
+      const pelvis = (
+        await page.evaluate(() => window.__boneDebug())
+      ).solo.find((m) => m.name === "pelvis");
+      assert.ok(pelvis, "Pelvis is displayed");
+      assert.ok(
+        Math.abs(pelvis.localSize[0] - 1) < 1e-6,
+        "Pelvis outer width uses the fitting convention, without the old 1.65x amplification",
+      );
+      assert.ok(
+        pelvis.localSize[2] > 0.6 && pelvis.localSize[2] < 0.9,
+        "Replacement pelvis keeps its source height-to-width proportion",
+      );
+    };
+    await checkPelvis();
     assert.equal(
       (await page.evaluate(() => window.__movieSnapshot())).layers.showBones,
       true,
@@ -72,6 +87,7 @@ const origin = process.env.OBM_TEST_URL || "http://127.0.0.1:8773";
       el.value = Number(el.min) + 0.7 * (el.max - el.min);
       el.dispatchEvent(new Event("input", { bubbles: true }));
     });
+    await checkPelvis();
     fs.mkdirSync(__dirname + "/results", { recursive: true });
     await page
       .locator(".stageWrap")
@@ -138,6 +154,12 @@ const origin = process.env.OBM_TEST_URL || "http://127.0.0.1:8773";
         thorax_prox: [0, 0, 2],
       };
       model.update(map, 0, true);
+      const pelvis = model.meshes.get("pelvis");
+      const pelvisWidth =
+        new THREE.Box3()
+          .setFromBufferAttribute(pelvis.geometry.getAttribute("position"))
+          .getSize(new THREE.Vector3()).x * pelvis.scale.x;
+      const centeredPelvis = pelvis.position.equals(new THREE.Vector3(0, 0, 1));
       const femur = model.meshes.get("leftFemur");
       femur.updateMatrix();
       const proximal = new THREE.Vector3(0, 0, 1)
@@ -153,6 +175,8 @@ const origin = process.env.OBM_TEST_URL || "http://127.0.0.1:8773";
       return {
         proximal,
         distal,
+        pelvisWidth,
+        centeredPelvis,
         sideCorrect,
         gapHidden,
         detached: parent.children.length === 0,
@@ -163,6 +187,10 @@ const origin = process.env.OBM_TEST_URL || "http://127.0.0.1:8773";
       assert.equal(fitting.distal[i], [1, 0.2, 0.5][i]);
     }
     assert.ok(fitting.sideCorrect && fitting.gapHidden && fitting.detached);
+    assert.ok(
+      fitting.centeredPelvis && Math.abs(fitting.pelvisWidth - 2) < 1e-6,
+      "Replacement pelvis remains centered and scales to released hip spacing",
+    );
     assert.deepEqual(errors, []);
     console.log(
       JSON.stringify(
@@ -171,6 +199,7 @@ const origin = process.env.OBM_TEST_URL || "http://127.0.0.1:8773";
             "Atlas loads only on activation",
             "Pitcher and hitter bone layers",
             "Bone-only view",
+            "OpenSim pelvis proportions and hip fitting",
             "Comparison and Match settings",
             "Split view",
             "Movie preparation includes bones",

@@ -36,4 +36,4 @@ See [the cleanup audit](CLEANUP.md) for verification results and preserved scien
 
 The external-drive application directory is also the Git repository root. Source modules are directly in that directory, alongside `docs/`, `tests/`, and `scripts/`.
 
-An optional **Anatomical bones** body layer uses the attributed BodyParts3D atlas in solo, comparison and split viewers, with matching and MP4 export support. It loads on activation and fits generic mesh shapes to existing joint centers; it does not change measurements or reconstruct athlete-specific anatomy. See the dashboard guide and `assets/anatomy/ATTRIBUTION.md`.
+An optional **Anatomical bones** body layer uses the attributed BodyParts3D atlas with an OpenSim pelvis in solo, comparison and split viewers, with matching and MP4 export support. It loads on activation and fits generic mesh shapes to existing joint centers; it does not change measurements or reconstruct athlete-specific anatomy. See the dashboard guide and `assets/anatomy/ATTRIBUTION.md`.

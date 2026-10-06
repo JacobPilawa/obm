@@ -190,6 +190,8 @@ export class AnatomicalBody {
         : null;
     const width =
       valid(hipL) && valid(hipR) ? vec(hipL).distanceTo(vec(hipR)) : 0;
+    // The replacement atlas pelvis has unit outer width. This is display fitting;
+    // its surface is not a reconstruction of the athlete's acetabula or bone size.
     this.place("pelvis", hips, pelvisFrame, width);
     if (valid(base) && valid(neck))
       this.place("chest", base, torsoFrame, vec(base).distanceTo(vec(neck)));
