@@ -193,6 +193,12 @@ const origin = process.env.OBM_TEST_URL || "http://127.0.0.1:8773";
     snapshot.height = 600;
     snapshot.pixelWidth = 320;
     snapshot.pixelHeight = 240;
+    for (const entry of snapshot.entries) {
+      entry.options.bones = true;
+      entry.options.thick = false;
+      entry.options.thin = false;
+      entry.options.joints = false;
+    }
     const submitted = await page.request.post(origin + "/api/video-exports", {
       data: snapshot,
     });
@@ -260,7 +266,7 @@ const origin = process.env.OBM_TEST_URL || "http://127.0.0.1:8773";
         "Cohort bands load after enabling",
         "Rapid selection preserves the newest recording; comparison waits for loading",
         "Latest Full body Match settings preserved",
-        "Background split-comparison MP4 with floating charts",
+        "Background split-comparison MP4 with anatomical bones and floating charts",
         "H.264/yuv420p at 60 fps",
         "Export cancellation",
       ],

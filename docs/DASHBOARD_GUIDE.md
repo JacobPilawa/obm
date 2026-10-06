@@ -220,3 +220,12 @@ The audit restored pitching angular-velocity coloring, corrected missing-value d
 See [VISUAL_GUIDE.md](VISUAL_GUIDE.md) for COM/trunk-axis/lead-leg overlays, full-body chart windows, event-based plot ranges, scientific definitions, verification limits, and research suggestions.
 
 Peer bands (25–75%) are off by default; the default cohort is the same discipline/playing level. The global viewer toolbar toggle affects all supported processed/derived charts, including floating windows. See the visual guide for event alignment, equal athlete weighting, sample thresholds, and regeneration.
+
+
+### Anatomical bone display
+
+Open **Body display → Anatomical bones** for a generic anatomical skeleton using BodyParts3D meshes. Turn off Thick segments, Thin skeleton and Joint centers for an unobstructed bone-only view. The optional atlas loads on first activation; file selection does not preload recordings. The option is also available per replay in comparison and split view; Match settings and MP4 snapshots preserve it. It requires processed joint centers and WebGL.
+
+The pelvis, ribs/spine, skull and paired limb bones follow the existing coordinates. Limb lengths fit the joint centers. Head orientation uses raw head markers where available; otherwise the skull follows the trunk. Foot placement uses available heel/toe markers. Missing joint samples hide the affected bones. Bone shape, transverse orientation and hand articulation are approximate; these are generic atlas meshes, not athlete-specific bone reconstruction. No scientific values, timing or sign conventions change.
+
+BodyParts3D © The Database Center for Life Science, licensed under CC Attribution 4.0 International. See `assets/anatomy/ATTRIBUTION.md` for source, license and modifications. Rebuilding the optional atlas requires numpy and fast-simplification 0.1.13; the runtime does not require that build tool.

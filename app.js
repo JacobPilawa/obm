@@ -1,3 +1,4 @@
+import { AnatomicalBody, ensureBoneAssets } from "./anatomical_body.js";
 import {
   initCohortControls,
   cohortState,
@@ -206,6 +207,7 @@ const performanceExplorer = new HighPerformanceExplorer();
 let compareFocus = new Map();
 const defaultCompareOptions = (data) => ({
   thick: true,
+  bones: false,
   thin: true,
   joints: !!data.signals?.landmarks,
   trail: true,
@@ -281,6 +283,7 @@ let scene,
   hitTraxArrow,
   hitTraxTube,
   solidBones,
+  anatomicalBody,
   trailLine,
   trailKnot,
   soloTrailTimes = [],
@@ -693,6 +696,8 @@ function updateArmSweep() {
   mesh.geometry.setDrawRange(0, lo ? drawCounts[lo - 1] : 0);
 }
 function buildDynamic() {
+  anatomicalBody?.dispose();
+  anatomicalBody = null;
   clearGroup(dynamic);
   soloMotionVisuals = trial ? new MotionVisuals(dynamic, trial) : null;
   batMesh = null;
@@ -701,6 +706,7 @@ function buildDynamic() {
   hitTraxTube = null;
   armSweepData = null;
   if (!trial) return;
+  anatomicalBody = new AnatomicalBody(dynamic, trial);
   const count = trial.entry.discipline === "pitching" ? 18 : 20;
   skeletonDots = new THREE.InstancedMesh(
     new THREE.SphereGeometry(0.032, 10, 7),
@@ -1337,6 +1343,7 @@ function updateMotion() {
     braking: layerOn("showBraking"),
     knee: layerOn("showKneeExtension"),
   });
+  anatomicalBody?.update(map, time, layerOn("showBones"));
   keypointExplorer?.updatePose(map, rawMap);
 }
 function updateReadout() {
@@ -1773,6 +1780,7 @@ const movieLayerIds = [
   "showBraking",
   "showKneeExtension",
   "showSolid",
+  "showBones",
   "showThin",
   "showJoints",
   "showTrail",
@@ -2023,6 +2031,17 @@ window.__prepareMovie = async (state) => {
     );
     refreshComparison(true);
   }
+  if (
+    state.layers.showBones ||
+    state.entries.some((item) => item.options.bones)
+  )
+    await ensureBoneAssets();
+  if (state.layers.showBones) await anatomicalBody?.load();
+  await Promise.all(
+    [...compareViewer.parts.values()]
+      .filter((part) => part.entry.options.bones)
+      .map((part) => part.anatomy.load()),
+  );
   configureCohort(state.cohort);
   if (state.cohort?.enabled)
     await Promise.all([
@@ -2611,6 +2630,7 @@ function populateTrial() {
     $(id).disabled = !sceneReady || !motionAnalysis(trial).available[key];
     if ($(id).disabled) $(id).setAttribute("aria-pressed", "false");
   }
+  $("showBones").disabled = !sceneReady || !trial.signals?.landmarks;
   const e = trial.entry;
   $("dataCoverage").textContent = [
     `${Object.keys(trial.signals || {}).length} processed tables`,
@@ -2787,6 +2807,7 @@ function matchComparisonSettings(id) {
     Object.assign(target.options, source.options);
     for (const key of ["com", "comTrail", "axis", "braking", "knee"])
       target.options[key] &&= motionAnalysis(data).available[key];
+    target.options.bones &&= !!data.signals?.landmarks;
     target.options.joints &&= !!data.signals?.landmarks;
     target.options.markers &&= !!data.motion;
     target.options.plates &&= !!data.motion?.platforms?.length;
@@ -2855,6 +2876,7 @@ function comparisonHasAnchor(data) {
 function renderCompareControls() {
   const bodyLayers = [
     ["thick", "Thick segments"],
+    ["bones", "Anatomical bones"],
     ["thin", "Thin skeleton"],
     ["joints", "Joint centers"],
     ["markers", "Raw markers"],
@@ -2920,6 +2942,7 @@ function renderCompareControls() {
         (["com", "comTrail", "axis", "braking", "knee"].includes(key) &&
           (!sceneReady || !motionAnalysis(data).available[key])) ||
         (key === "power" && (!modes.length || !sceneReady)) ||
+        (key === "bones" && (!sceneReady || !data.signals?.landmarks)) ||
         (key === "joints" && !data.signals?.landmarks) ||
         (key === "markers" && !data.motion) ||
         (key === "plates" && !hasPlates) ||
@@ -3434,6 +3457,8 @@ function focusGeometry(which) {
   else drawFallback();
 }
 function bindControls() {
+  window.addEventListener("obm-bones-ready", updateTimeline);
+  window.addEventListener("obm-bones-error", (event) => toast(event.detail));
   for (const event of ["click", "input", "pointermove", "keydown"])
     document.addEventListener(event, invalidateViewer, {
       capture: true,
@@ -3804,6 +3829,7 @@ function bindControls() {
     "showBraking",
     "showKneeExtension",
     "showSolid",
+    "showBones",
     "showThin",
     "showJoints",
     "showTrail",

@@ -1,3 +1,4 @@
+import { AnatomicalBody } from "./anatomical_body.js";
 import { MotionVisuals } from "./motion_visuals.js";
 import * as THREE from "three";
 import {
@@ -271,6 +272,7 @@ export class CompareViewer {
     this.forceMax = 0;
   }
   setEntries(entries) {
+    for (const part of this.parts.values()) part.anatomy.dispose();
     dispose(this.root);
     this.parts.clear();
     this.entries = entries;
@@ -294,6 +296,7 @@ export class CompareViewer {
           entry.poseRange || visualPoseRange(data, [...pairs, ...batPair]);
       this.root.add(group);
       const motionVisuals = new MotionVisuals(group, data);
+      const anatomy = new AnatomicalBody(group, data, color.body);
       const body = new THREE.InstancedMesh(
         new THREE.CylinderGeometry(1, 1, 1, 8),
         new THREE.MeshStandardMaterial({ color: color.body, roughness: 0.72 }),
@@ -551,6 +554,7 @@ export class CompareViewer {
         data,
         group,
         motionVisuals,
+        anatomy,
         splitGround,
         powerState,
         powerDots,
@@ -771,6 +775,7 @@ export class CompareViewer {
           mesh.instanceColor.needsUpdate = true;
         }
       }
+      part.anatomy.update(map, t, opts.bones);
       body.visible = opts.thick;
       thin.visible = opts.thin;
       dots.visible = opts.joints;
@@ -943,6 +948,7 @@ export class CompareViewer {
     return focused;
   }
   clear() {
+    for (const part of this.parts.values()) part.anatomy.dispose();
     dispose(this.root);
     this.parts.clear();
     this.entries = [];
