@@ -26,7 +26,7 @@ const origin = process.env.OBM_TEST_URL || "http://127.0.0.1:8773";
         response,
         body:
           (await response.text()) +
-          `\nwindow.__boneDebug=()=>({solo:anatomicalBody?.group.children.filter(m=>m.visible).map(m=>({name:m.name,position:m.position.toArray(),scale:m.scale.toArray(),localSize:new THREE.Box3().setFromBufferAttribute(m.geometry.getAttribute("position")).getSize(new THREE.Vector3()).toArray()})),compare:[...compareViewer.parts.values()].map(p=>({id:p.entry.id,enabled:p.entry.options.bones,visible:p.anatomy.group.visible,meshes:p.anatomy.group.children.filter(m=>m.visible).length}))});`,
+          `\nwindow.__boneDebug=()=>({solo:anatomicalBody?.group.children.filter(m=>m.visible && m.isMesh).map(m=>({name:m.name,position:m.position.toArray(),scale:m.scale.toArray(),localSize:new THREE.Box3().setFromBufferAttribute(m.geometry.getAttribute("position")).getSize(new THREE.Vector3()).toArray()})),compare:[...compareViewer.parts.values()].map(p=>({id:p.entry.id,enabled:p.entry.options.bones,visible:p.anatomy.group.visible,meshes:p.anatomy.group.children.filter(m=>m.visible).length}))});`,
       });
     });
     await page.goto(origin);

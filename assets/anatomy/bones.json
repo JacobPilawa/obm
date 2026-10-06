@@ -397,7 +397,16 @@
         "FJ3394",
         "FJ3395"
       ]
+    },
+    "gripPhalanx": {
+      "positionOffset": 1055724,
+      "vertexCount": 170,
+      "indexOffset": 1057764,
+      "indexCount": 897,
+      "sourceElements": [
+        "FJ3325"
+      ]
     }
   },
-  "meshSha256": "de9ed6bea0e7cb31a268889682260481e47f8fcda3def99c60e053bfb555579f"
+  "meshSha256": "8f8ee915aabf3b763e03fa537cc4095af9a467d9a8f342052f3b30d82512afde"
 }

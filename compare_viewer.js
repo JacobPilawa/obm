@@ -688,6 +688,10 @@ export class CompareViewer {
       part.motionVisuals.update(local, opts);
       const map = {};
       for (const name of names) map[name] = point(data, name, t);
+      if (processed && data.entry.discipline === "hitting") {
+        map.blast_hand = point(data, "blast_hand", t);
+        map.sweet_spot = point(data, "sweet_spot", t);
+      }
       const midpoint = (a, b) =>
         valid(a) && valid(b)
           ? vector(a).add(vector(b)).multiplyScalar(0.5).toArray()

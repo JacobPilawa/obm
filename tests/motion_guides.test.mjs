@@ -1,3 +1,4 @@
+import { gripPose } from "../grip_pose.js";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { batPose } from "../bat_pose.js";
@@ -51,4 +52,29 @@ test("trunk display preserves internal landmark gaps", () => {
   assert.equal(analysis.axisGuideAt(1.25), null);
   assert.equal(analysis.axisGuideAt(1.5), null);
   assert.ok(analysis.axisGuideAt(3));
+});
+
+test("illustrative fingers wrap outside the bat while preserving wrist inputs", () => {
+  const wrist = [0, -0.07, 1],
+    hand = [0, -0.02, 1.03],
+    handle = [0, 0, 1],
+    sweet = [0, 0, 1.5375];
+  for (const isLeft of [true, false]) {
+    const pose = gripPose(wrist, hand, handle, sweet, 34, isLeft);
+    assert.deepEqual(pose.wrist, wrist);
+    assert.ok(pose.bones.every((b) => [...b.a, ...b.b].every(Number.isFinite)));
+    for (const bone of pose.bones.filter(
+      (b) => !b.name.includes("metacarpal"),
+    )) {
+      const midpoint = bone.a.map((v, i) => (v + bone.b[i]) / 2);
+      const radial = Math.hypot(midpoint[0], midpoint[1]);
+      assert.ok(
+        radial - bone.width / 2 > pose.batRadius,
+        "Curled finger bones clear the handle surface",
+      );
+    }
+  }
+  assert.deepEqual(wrist, [0, -0.07, 1]);
+  assert.equal(gripPose(wrist, hand, null, sweet, 34, true), null);
+  assert.equal(gripPose(null, hand, handle, sweet, 34, true), null);
 });

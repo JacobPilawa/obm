@@ -158,6 +158,9 @@ for key, concepts, count in [('pelvis', ['bony pelvis'], 3500), ('chest', ['rib 
     elif key != 'pelvis':
         v = normalized_segment(v)
     parts[key] = (v, f, ids, count)
+# One generic finger bone is reused in the illustrative hitter grip renderer.
+v, f, ids = mesh(['proximal phalanx of right middle finger'])
+parts['gripPhalanx'] = (normalized_segment(v), f, ids, 300)
 a.output.mkdir(parents=True, exist_ok=True)
 manifest = {'pelvisSource': {'project': 'OpenSim GUI', 'revision': OPENSIM_REVISION, 'license': 'Apache-2.0', 'files': pelvis_sources, 'modifications': 'Pelvis and sacrum combined; one Loop subdivision pass; coordinate conversion; outer-width normalization and approximate hip-origin fitting.'}, 'source': BASE + 'partof_BP3D_4.0_obj_99.zip', 'sourceSha256': hashlib.sha256(a.archive.read_bytes()).hexdigest(), 'credit': 'BodyParts3D © The Database Center for Life Science, licensed under CC Attribution 4.0 International', 'license': 'https://creativecommons.org/licenses/by/4.0/', 'modifications': 'Bone-only selection, mesh simplification, normalization, approximate joint fitting. Generic atlas, not athlete-specific anatomy.', 'parts': {}}
 binary = bytearray()
@@ -180,4 +183,6 @@ with (a.output / 'ATTRIBUTION.md').open('a') as attribution:
     attribution.write(f'\n## Replacement pelvis\n\nOpenSim GUI © 2005–2017 Stanford University and the Authors, **Apache License 2.0**.\n\nSource revision: https://github.com/opensim-org/opensim-gui/tree/{OPENSIM_REVISION}/{OPENSIM_GEOMETRY}\n\nThe replacement uses pelvis_l.vtp, pelvis_r.vtp and sacrum.vtp. Modified by combining these surfaces, one Loop subdivision pass, conversion to the atlas coordinate system, outer-width normalization and approximate fitting to released hip centers. Hip-origin reference: ArmCurlingFullBody.osim at the same revision. The remainder of the atlas retains BodyParts3D attribution above. Original source hashes are recorded in bones.json.\n\nThe OpenSim license and notice are preserved in OPENSIM_LICENSE.txt and OPENSIM_NOTICE.txt.\n')
 for source_name, output_name in [('LICENSE.txt', 'OPENSIM_LICENSE.txt'), ('NOTICE.txt', 'OPENSIM_NOTICE.txt')]:
     (a.output / output_name).write_bytes(urllib.request.urlopen(OPENSIM_BASE + source_name).read())
+with (a.output / 'ATTRIBUTION.md').open('a') as attribution:
+    attribution.write('\n## Illustrative hitter grip\n\nThe proximal phalanx of the right middle finger is additionally reused as a generic finger/metacarpal surface. Runtime finger curling and procedural carpal shapes are an artistic grip pose around the bat, not measured or reconstructed finger motion. Released wrist and hand anchors are unchanged.\n')
 print('Runtime atlas bytes:', len(binary))

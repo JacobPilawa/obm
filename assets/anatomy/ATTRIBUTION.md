@@ -17,3 +17,7 @@ Source revision: https://github.com/opensim-org/opensim-gui/tree/2ceb01b476e7e1a
 The replacement uses pelvis_l.vtp, pelvis_r.vtp and sacrum.vtp. Modified by combining these surfaces, one Loop subdivision pass, conversion to the atlas coordinate system, outer-width normalization and approximate fitting to released hip centers. Hip-origin reference: ArmCurlingFullBody.osim at the same revision. The remainder of the atlas retains BodyParts3D attribution above. Original source hashes are recorded in bones.json.
 
 The OpenSim license and notice are preserved in OPENSIM_LICENSE.txt and OPENSIM_NOTICE.txt.
+
+## Illustrative hitter grip
+
+The proximal phalanx of the right middle finger is additionally reused as a generic finger/metacarpal surface. Runtime finger curling and procedural carpal shapes are an artistic grip pose around the bat, not measured or reconstructed finger motion. Released wrist and hand anchors are unchanged.

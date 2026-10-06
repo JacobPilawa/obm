@@ -1,3 +1,4 @@
+import { HandGrip } from "./hand_grip.js";
 import * as THREE from "three";
 
 let assetRequest;
@@ -80,6 +81,7 @@ export class AnatomicalBody {
           side: THREE.DoubleSide,
         });
         for (const [name, part] of Object.entries(assets.parts)) {
+          if (name === "gripPhalanx") continue;
           const geometry = new THREE.BufferGeometry();
           geometry.setAttribute(
             "position",
@@ -94,6 +96,21 @@ export class AnatomicalBody {
           this.group.add(mesh);
           this.meshes.set(name, mesh);
         }
+        if (
+          this.data.entry.discipline === "hitting" &&
+          assets.parts.gripPhalanx
+        )
+          this.grips = Object.fromEntries(
+            ["left", "right"].map((side) => [
+              side,
+              new HandGrip(
+                this.group,
+                assets.parts.gripPhalanx,
+                this.material,
+                side,
+              ),
+            ]),
+          );
         if (this.last) this.update(...this.last);
         window.dispatchEvent(new Event("obm-bones-ready"));
       })
@@ -160,6 +177,8 @@ export class AnatomicalBody {
       return;
     }
     for (const mesh of this.meshes.values()) mesh.visible = false;
+    for (const grip of Object.values(this.grips || {}))
+      grip.group.visible = false;
     const pitch = this.data.entry.discipline === "pitching",
       leftThrow = this.data.entry.side === "L";
     const hipL =
@@ -211,8 +230,14 @@ export class AnatomicalBody {
       this.segment(`${side}Shin`, knee, ankle, lateral);
       this.segment(`${side}Humerus`, shoulder, elbow, torsoLateral);
       this.segment(`${side}Forearm`, elbow, wrist, torsoLateral);
-      // Hand center is not a fingertip; atlas hand extends beyond that anchor.
-      if (valid(wrist) && valid(hand)) {
+      const gripping = this.grips?.[side]?.update(
+        wrist,
+        hand,
+        map,
+        this.data.metadata?.bat_length_in,
+      );
+      // Retain the atlas open hand for pitchers or when the bat pose is unavailable.
+      if (!gripping && valid(wrist) && valid(hand)) {
         const fingertips = vec(wrist).lerp(vec(hand), 2).toArray();
         this.segment(`${side}Hand`, wrist, fingertips, torsoLateral);
       }
@@ -284,6 +309,8 @@ export class AnatomicalBody {
   dispose() {
     this.disposed = true;
     this.group.removeFromParent();
+    for (const grip of Object.values(this.grips || {})) grip.dispose();
+    this.grips = null;
     for (const mesh of this.meshes.values()) mesh.geometry.dispose();
     this.material?.dispose();
     this.meshes.clear();

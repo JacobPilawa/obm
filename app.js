@@ -2941,7 +2941,7 @@ function renderCompareControls() {
         (key === "eventPoint" && !data.signals?.landmarks) ||
         (key === "sweep" && !sweep);
       const menu = (name, items) =>
-        `<details class="layerMenu"><summary>${name}</summary><div class="layerMenuPanel">${items.map(([key, label]) => `<button class="soloLayer" type="button" data-compare-option="${key}" data-id="${esc(entry.id)}" aria-pressed="${!!entry.options[key]}" ${disabled(key) ? "disabled" : ""}>${label}</button>`).join("")}</div></details>`;
+        `<details class="layerMenu"><summary>${name}</summary><div class="layerMenuPanel">${items.map(([key, label]) => `<button class="soloLayer" type="button" data-compare-option="${key}" ${key === "bones" && hitting ? 'title="Illustrative bat grip; fingers are not tracked"' : ""} data-id="${esc(entry.id)}" aria-pressed="${!!entry.options[key]}" ${disabled(key) ? "disabled" : ""}>${label}</button>`).join("")}</div></details>`;
       const scale = sweep?.colorScale,
         unit = hitting ? "mph" : "N·m",
         legend = scale
