@@ -10,9 +10,10 @@
     "test": "node --test tests/*.test.mjs",
     "test:browser": "node tests/browser.cjs",
     "test:numerics": "node tests/numerics.mjs",
-    "format": "prettier --write dashboard/*.{js,mjs,cjs,css,html} tests/*.{mjs,cjs}",
-    "format:check": "prettier --check dashboard/*.{js,mjs,cjs,css,html} tests/*.{mjs,cjs}",
-    "test:regressions": "node tests/regressions.cjs"
+    "format": "node node_modules/prettier/bin/prettier.cjs --write *.{js,mjs,cjs,css,html} tests/*.{mjs,cjs}",
+    "format:check": "node node_modules/prettier/bin/prettier.cjs --check *.{js,mjs,cjs,css,html} tests/*.{mjs,cjs}",
+    "test:regressions": "node tests/regressions.cjs",
+    "test:selection": "node tests/selection.cjs"
   },
   "dependencies": {
     "playwright": "1.62.1"

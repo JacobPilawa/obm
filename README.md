@@ -1,8 +1,18 @@
 # OpenBiomechanics Motion Lab
 
-My local dashboard contributions for exploring [OpenBiomechanics](https://github.com/drivelineresearch/openbiomechanics) pitching, hitting, and high-performance data. Includes 3D replay, synchronized charts, four-recording comparisons, anatomical overlays, cohort bands, assessment analysis, and background MP4 export. See [the feature map](docs/FEATURES.md) and [the dashboard guide](dashboard/README.md).
+My local dashboard contributions for exploring [OpenBiomechanics](https://github.com/drivelineresearch/openbiomechanics) pitching, hitting, and high-performance data. Includes 3D replay, synchronized charts, four-recording comparisons, anatomical overlays, cohort bands, assessment analysis, and background MP4 export. See [the feature map](docs/FEATURES.md) and [the dashboard guide](docs/DASHBOARD_GUIDE.md).
 
 ## Run locally
+
+The primary application and Git repository now live at `/Volumes/Elements/biomech/dashboard`. `server.py` and the browser modules are directly in that directory. The previous external-drive dashboard is preserved under `../archive/dashboard_before_cleaned_20261006/`.
+
+On this Mac, double-click `start_dashboard.command`, or run:
+
+```sh
+cd /Volumes/Elements/biomech/dashboard
+./start_dashboard.command --port 8773
+```
+
 
 Use Python 3.10+ (tested with 3.12). Keep the upstream repository and its release data separate: download the pitching/hitting assets using its instructions, then extract the full-signal ZIPs into each discipline's `data/full_sig/` folder.
 
@@ -11,7 +21,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
 export OBM_DATA_ROOT=/path/to/openbiomechanics
-python dashboard/server.py
+python server.py
 ```
 
 Open http://127.0.0.1:8766. `--port 8767` selects another port; `--refresh-catalog` rescans added C3D recordings. The server binds to loopback. For your existing dataset, set `OBM_DATA_ROOT=/Volumes/Elements/biomech/openbiomechanics`.
@@ -44,4 +54,6 @@ npm run test:regressions
 
 Set `OBM_TEST_URL` for another test port. Browser/export checks require the downloaded release data, generated JSON, Chromium/Chrome, and ffmpeg/ffprobe. Test outputs stay in ignored `tests/results/`. `npm run format` formats owned web source; vendored libraries remain unchanged.
 
-The unchanged external-drive source was pushed first as commit `97c0d60`. [The cleanup audit](docs/CLEANUP.md) records changes, measurements, and limitations. Earlier agent workspaces remain in ignored `local_archive/`; the separate velocity/Gaussian projects are excluded. Datasets, derived JSON, caches, downloaded media, and environments are excluded using upstream rules plus local exclusions. See [third-party attribution](docs/THIRD_PARTY.md).
+The unchanged original external-drive source was pushed first as commit `97c0d60`. [The cleanup audit](docs/CLEANUP.md) records changes, measurements, and limitations. Earlier agent workspaces remain archived in the former local workspace; the separate velocity/Gaussian projects are excluded. Datasets, derived JSON, caches, downloaded media, and environments are excluded using upstream rules plus local exclusions. See [third-party attribution](docs/THIRD_PARTY.md).
+
+[Sidebar speed measurements](docs/SELECTION_SPEED.md) describe parsed-trial reuse and bounded idle preloading.

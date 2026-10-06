@@ -5,8 +5,8 @@ import {
   derivative,
   cumulativeIntegral,
   massKg,
-} from "../dashboard/biomechanics.js";
-import { plotBounds } from "../dashboard/plot_range.js";
+} from "../biomechanics.js";
+import { plotBounds } from "../plot_range.js";
 
 const near = (actual, expected) =>
   assert.ok(Math.abs(actual - expected) < 1e-9, `${actual} != ${expected}`);

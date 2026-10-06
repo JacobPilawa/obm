@@ -7,11 +7,11 @@ import {
   massKg,
   timeAxis,
   batKinematics,
-} from "../dashboard/biomechanics.js";
-import { buildQuantities } from "../dashboard/quantities.js";
-import { buildPowerOverlay, powerValues } from "../dashboard/energy_overlay.js";
-import { alignedTime, primaryTime } from "../dashboard/comparison.js";
-import { keypointEvents } from "../dashboard/chart_events.js";
+} from "../biomechanics.js";
+import { buildQuantities } from "../quantities.js";
+import { buildPowerOverlay, powerValues } from "../energy_overlay.js";
+import { alignedTime, primaryTime } from "../comparison.js";
+import { keypointEvents } from "../chart_events.js";
 const near = (a, b) => assert.ok(Math.abs(a - b) < 1e-9, `${a} != ${b}`);
 const t = [0, 0.1, 0.21, 0.3, 0.4];
 derivative(

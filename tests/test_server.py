@@ -9,7 +9,7 @@ import urllib.request
 from pathlib import Path
 from unittest.mock import patch
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'dashboard'))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from server import DashboardHTTPServer, Handler, accepts_gzip
 from video_jobs import VideoJobs
 

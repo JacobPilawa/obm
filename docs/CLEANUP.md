@@ -1,5 +1,7 @@
 # October 6, 2026 cleanup audit
 
+The following records the initial cleanup layout. The application has since moved into `/Volumes/Elements/biomech/dashboard` as the repository root; see `MIGRATION.md` and `SELECTION_SPEED.md` for the subsequent changes.
+
 ## Baseline and scope
 
 The active source was `/Volumes/Elements/biomech/dashboard`, rather than the earlier revision folders in this workspace. Its latest installed patch was October 2 at 2:41 PM Pacific: Full body comparison Match settings. Active `app.js`, `comparison_keypoints.js`, and `full_body_charts.js` matched that patch byte-for-byte. The immediately preceding patches were visible-curve axis scaling and live legends in movie exports.

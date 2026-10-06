@@ -1,9 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { TrialClient } from "../dashboard/trial_client.js";
-import { buildPowerOverlay } from "../dashboard/energy_overlay.js";
-import { buildQuantities } from "../dashboard/quantities.js";
-import { buildKeypointGroups } from "../dashboard/keypoint_data.js";
+import { TrialClient } from "../trial_client.js";
+import { buildPowerOverlay } from "../energy_overlay.js";
+import { buildQuantities } from "../quantities.js";
+import { buildKeypointGroups } from "../keypoint_data.js";
 const response = (value) => new Response(JSON.stringify(value));
 
 test("parsed payloads are reused and concurrent requests share one fetch", async () => {

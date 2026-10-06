@@ -4,7 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from threading import Event
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'dashboard'))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from memo_cache import MemoCache
 
 

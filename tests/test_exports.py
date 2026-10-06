@@ -6,7 +6,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'dashboard'))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from video_jobs import VideoJobs
 
 STORE = SimpleNamespace(entries={'p': {'public': {'discipline': 'pitching'}}, 'h': {'public': {'discipline': 'hitting'}}})

@@ -8,9 +8,9 @@ import os
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parent.parent
-SOURCE = Path(os.environ.get("OBM_DATA_ROOT", ROOT / "openbiomechanics")).expanduser() / "high_performance/data/hp_obp.csv"
-OUTPUT = ROOT / "dashboard/data/high_performance.json"
+APP_DIR = Path(__file__).resolve().parent
+SOURCE = Path(os.environ.get("OBM_DATA_ROOT", APP_DIR.parent / "openbiomechanics")).expanduser() / "high_performance/data/hp_obp.csv"
+OUTPUT = APP_DIR / "data/high_performance.json"
 TEXT_COLUMNS = {
     "test_date", "playing_level", "bat_speed_mph_group", "pitch_speed_mph_group",
     "pitching_session_date", "hitting_session_date", "athlete_uid",

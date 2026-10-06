@@ -1,6 +1,6 @@
-dashboard/vendor/
-dashboard/cache/
-dashboard/data/
+vendor/
+cache/
+data/
 node_modules/
 local_archive/
 .venv/

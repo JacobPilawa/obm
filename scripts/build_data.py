@@ -15,7 +15,7 @@ def main():
     args = parser.parse_args()
     for name in ([args.only] if args.only else BUILDERS):
         print(f'Building {name}…', flush=True)
-        subprocess.run([sys.executable, '-B', str(ROOT / 'dashboard' / BUILDERS[name])], check=True)
+        subprocess.run([sys.executable, '-B', str(ROOT / BUILDERS[name])], check=True)
 
 
 if __name__ == '__main__':

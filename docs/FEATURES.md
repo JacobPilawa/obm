@@ -16,8 +16,8 @@ Assessment browser, athlete profiles/history, test availability, full metric sel
 ## Architecture
 | Files | Responsibility |
 | --- | --- |
-| `dashboard/server.py`, `data_store.py` | Loopback HTTP API, CSV byte-span indexes, C3D parsing, catalog and trial cache |
-| `dashboard/app.js`, `app.css`, `index.html` | Replay orchestration, controls, catalog and main interface |
+| `server.py`, `data_store.py` | Loopback HTTP API, CSV byte-span indexes, C3D parsing, catalog and trial cache |
+| `app.js`, `app.css`, `index.html` | Replay orchestration, controls, catalog and main interface |
 | `compare_viewer.js`, `split_viewer.js`, `comparison.js` | Comparison scenes, camera layout and time alignment |
 | `charts.js`, `quantities.js`, `biomechanics.js`, `pitch_report.js` | Plots, signal definitions, derivatives and report values |
 | `keypoint_*.js`, `comparison_keypoints.js`, `floating_plot.js`, `full_body_charts.js` | Anatomical selections and floating plots |
@@ -30,6 +30,8 @@ Assessment browser, athlete profiles/history, test availability, full metric sel
 ## Boundaries
 This is a local desktop dashboard, not an authenticated multi-user service. It reads an independent upstream checkout and downloaded/extracted release assets through `OBM_DATA_ROOT`. Source positions, published signals, summary metrics and dashboard calculations remain distinct; visual mappings are not new biomechanical measurements.
 
-The original workspace contained successive copies and one-off installers. `dashboard/` is the active installed version; historical workspaces are excluded from this contribution snapshot. Generated cohort, limb-length and assessment JSON files are local data, not committed source. `docs/baseline-sha256.json` records hashes of the copied active source.
+The original workspace contained successive copies and one-off installers. `` is the active installed version; historical workspaces are excluded from this contribution snapshot. Generated cohort, limb-length and assessment JSON files are local data, not committed source. `docs/baseline-sha256.json` records hashes of the copied active source.
 
 See [the cleanup audit](CLEANUP.md) for verification results and preserved scientific behavior.
+
+The external-drive application directory is also the Git repository root. Source modules are directly in that directory, alongside `docs/`, `tests/`, and `scripts/`.

@@ -55,7 +55,7 @@ const { chromium } = require("playwright");
       );
       await route.fulfill({ response: r, body: source });
     });
-    await page.goto("http://127.0.0.1:8773/");
+    await page.goto(process.env.OBM_TEST_URL || "http://127.0.0.1:8773/");
     await page.waitForFunction(
       () => window.__movieReady?.(),
       {},

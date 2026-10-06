@@ -65,7 +65,7 @@ brain/
 
 # Contributions repository: upstream checkout and generated dashboard data
 openbiomechanics/
-dashboard/data/*.json
+data/*.json
 cache/
 node_modules/
 ._*
@@ -81,6 +81,6 @@ reproductions/**/*.png
 reproductions/**/*.pdf
 reproductions/**/*.csv
 
-dashboard/data/limb_audit/
+data/limb_audit/
 tests/results/
 *.tmp
