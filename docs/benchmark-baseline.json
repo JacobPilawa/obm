@@ -1,0 +1,32 @@
+{
+  "catalog": {
+    "milliseconds": [
+      104.16,
+      82.92,
+      82.17,
+      83.25
+    ],
+    "bytes": 800293,
+    "encoding": "gzip"
+  },
+  "pitch": {
+    "milliseconds": [
+      668.21,
+      164.49,
+      170.17,
+      162.57
+    ],
+    "bytes": 1322809,
+    "encoding": "gzip"
+  },
+  "cohort": {
+    "milliseconds": [
+      16.18,
+      12.07,
+      11.57,
+      9.8
+    ],
+    "bytes": 14345872,
+    "encoding": "identity"
+  }
+}

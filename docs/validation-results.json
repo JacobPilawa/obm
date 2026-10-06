@@ -1,0 +1,133 @@
+{
+  "browser": {
+    "checks": [
+      "Additional POI sorting",
+      "Checkbox menus and keyboard toggles",
+      "Pitching angular speed overlay restored",
+      "Solo keypoint event checkbox and export snapshot",
+      "Stable legend heights throughout playback",
+      "Comparison controls, event panels, split cameras",
+      "Four-replay comparison preserved",
+      "Hitting viewer and keypoints",
+      "Hitting comparison",
+      "High-performance explorer and full metric list",
+      "Narrow desktop layout",
+      "Raw-only, calibration, and processed-only UI paths"
+    ],
+    "errors": []
+  },
+  "regressions": {
+    "checks": [
+      "Idle GPU draws stop; scrubbing/playback redraw",
+      "Cohort bands load after enabling",
+      "Rapid selection preserves the newest recording; comparison waits for loading",
+      "Latest Full body Match settings preserved",
+      "Background split-comparison MP4 with floating charts",
+      "H.264/yuv420p at 60 fps",
+      "Export cancellation"
+    ],
+    "movie": {
+      "frames": "78",
+      "width": 320,
+      "height": 240,
+      "fps": "60/1"
+    },
+    "errors": []
+  },
+  "numerics": {
+    "syntheticChecks": "passed",
+    "trials": [
+      {
+        "id": "pitching:processed:1031_2",
+        "quantities": 378,
+        "publishedSignals": 286,
+        "events": 6,
+        "modes": [
+          "generated",
+          "jfp",
+          "stp",
+          "work",
+          "moment",
+          "angular",
+          "grf",
+          "grfVertical",
+          "endpoint"
+        ]
+      },
+      {
+        "id": "pitching:processed:1250_1",
+        "quantities": 378,
+        "publishedSignals": 286,
+        "events": 6,
+        "modes": [
+          "generated",
+          "jfp",
+          "stp",
+          "work",
+          "moment",
+          "angular",
+          "grf",
+          "grfVertical",
+          "endpoint"
+        ]
+      },
+      {
+        "id": "pitching:model:000884_001603_model.c3d",
+        "quantities": 66,
+        "publishedSignals": 0,
+        "events": 0,
+        "modes": []
+      },
+      {
+        "id": "hitting:processed:6_1",
+        "quantities": 259,
+        "publishedSignals": 162,
+        "events": 3,
+        "modes": [
+          "hittingAngular",
+          "jointSpeed",
+          "grf",
+          "grfVertical"
+        ]
+      },
+      {
+        "id": "hitting:processed:8_1",
+        "quantities": 263,
+        "publishedSignals": 162,
+        "events": 3,
+        "modes": [
+          "hittingAngular",
+          "jointSpeed",
+          "grf",
+          "grfVertical"
+        ]
+      },
+      {
+        "id": "hitting:processed:268_1",
+        "quantities": 185,
+        "publishedSignals": 162,
+        "events": 3,
+        "modes": [
+          "hittingAngular",
+          "jointSpeed",
+          "grf",
+          "grfVertical"
+        ]
+      },
+      {
+        "id": "hitting:raw:000146_000043_70_196_R_016_878.c3d",
+        "quantities": 79,
+        "publishedSignals": 0,
+        "events": 0,
+        "modes": []
+      },
+      {
+        "id": "hitting:model:000065_000179_model.c3d",
+        "quantities": 79,
+        "publishedSignals": 0,
+        "events": 0,
+        "modes": []
+      }
+    ]
+  }
+}

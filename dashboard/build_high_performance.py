@@ -3,11 +3,13 @@ from __future__ import annotations
 
 import csv
 import json
+import math
+import os
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
-SOURCE = ROOT / "openbiomechanics/high_performance/data/hp_obp.csv"
+SOURCE = Path(os.environ.get("OBM_DATA_ROOT", ROOT / "openbiomechanics")).expanduser() / "high_performance/data/hp_obp.csv"
 OUTPUT = ROOT / "dashboard/data/high_performance.json"
 TEXT_COLUMNS = {
     "test_date", "playing_level", "bat_speed_mph_group", "pitch_speed_mph_group",
@@ -21,7 +23,8 @@ def convert(key: str, value: str | None):
     if key in TEXT_COLUMNS:
         return value
     try:
-        return float(value)
+        number = float(value)
+        return number if math.isfinite(number) else None
     except ValueError:
         return value
 

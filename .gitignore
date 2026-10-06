@@ -76,24 +76,11 @@ node_modules/
 .env.*
 !.env.example
 local_archive/
-# Earlier agent workspaces; the active source is preserved in dashboard/
-/dashboard_audit/
-/dashboard_polish/
-/dashboard_revision/
-/dashboard_visuals/
-/bat_color_revision/
-/legend_columns/
-/legend_style/
-/legend_values/
-/match_full_body/
-/movie_legend/
-/toolbar_cleanup/
-/visible_axis/
-/velocity_audit/
-/velocity_revision/
-/gaussian_pitch/
-/deploy_*.py
 # Generated analysis output
 reproductions/**/*.png
 reproductions/**/*.pdf
 reproductions/**/*.csv
+
+dashboard/data/limb_audit/
+tests/results/
+*.tmp

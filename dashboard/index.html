@@ -1,157 +1,1375 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>OpenBiomechanics | Motion analysis</title>
-  <link rel="stylesheet" href="/app.css">
-  <script type="importmap">{"imports":{"three":"/vendor/three.module.js","three/addons/controls/OrbitControls.js":"/vendor/OrbitControls.js"}}</script>
-  <script type="module" src="/app.js"></script>
-</head>
-<body>
-<main class="shell">
-  <aside class="rail" aria-label="Recording library">
-    <div class="railHead"><div class="paneTitle"><h1>Sessions</h1></div><button id="toggleLeft" class="paneToggle" type="button" aria-label="Collapse sessions" title="Collapse sessions">Hide ‹</button></div>
-    <div class="railContent"><div class="tabs" role="tablist"><button id="pitchingTab" class="active" data-kind="pitching">Pitching</button><button id="hittingTab" data-kind="hitting">Hitting</button><button id="performanceTab" type="button">High Performance</button></div>
-      <div id="hpRail" class="hpRail" hidden>
-        <div class="hpRailFilters filters">
-          <div class="hpSearchLine searchLine"><input id="hpSearch" type="search" placeholder="Search athlete ID" aria-label="Search high performance athletes"><button id="hpFilterButton" class="filterButton" type="button" aria-expanded="false" aria-controls="hpFilterPanel">Filters <span id="hpFilterBadge" hidden></span></button></div>
-          <div id="hpModality" class="hpModality" role="group" aria-label="High performance session type"><button type="button" data-hp-modality="all" class="active" aria-pressed="true">All</button><button type="button" data-hp-modality="pitching" aria-pressed="false" title="Athletes with released pitching session data">Pitchers</button><button type="button" data-hp-modality="hitting" aria-pressed="false" title="Athletes with released hitting session data">Hitters</button></div>
-          <div id="hpFilterPanel" class="filterPanel hpFilterPanel" hidden>
-            <div class="filterGrid">
-              <label>Assessment data<select id="hpTestFilter"><option value="all">Any assessment</option><option value="cmj">Countermovement jump</option><option value="sj">Squat jump</option><option value="imtp">Isometric mid-thigh pull</option><option value="ht">Hop test</option><option value="pp">Plyo pushup</option><option value="mobility">Mobility / shoulder</option></select></label>
-              <label>Sort by<select id="hpSort"><option value="date">Latest assessment date</option><option value="athlete">Athlete ID</option><option value="assessments">Assessment count</option></select></label>
-              <label>Order<select id="hpSortOrder"><option value="desc">High to low / Z to A</option><option value="asc">Low to high / A to Z</option></select></label>
-              <label>Playing level<select id="hpLevel" aria-label="Filter high performance playing level"><option value="all">All playing levels</option><option>High School</option><option>College</option><option>Pro</option></select></label>
-              <label>Metric range<select id="hpFilterMetric"><option value="">Any measure</option></select></label>
-              <div class="filterRange"><label>Min<input id="hpFilterMin" type="number" step="any" placeholder="Any"></label><label>Max<input id="hpFilterMax" type="number" step="any" placeholder="Any"></label></div>
-            </div>
-            <p>Uses each athlete’s latest available result.</p><button id="hpClearFilters" class="clearFilters" type="button">Clear filters</button>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OpenBiomechanics | Motion analysis</title>
+    <link rel="stylesheet" href="/app.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "/vendor/three.module.js",
+          "three/addons/controls/OrbitControls.js": "/vendor/OrbitControls.js"
+        }
+      }
+    </script>
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body>
+    <main class="shell">
+      <aside class="rail" aria-label="Recording library">
+        <div class="railHead">
+          <div class="paneTitle"><h1>Sessions</h1></div>
+          <button
+            id="toggleLeft"
+            class="paneToggle"
+            type="button"
+            aria-label="Collapse sessions"
+            title="Collapse sessions"
+          >
+            Hide ‹
+          </button>
+        </div>
+        <div class="railContent">
+          <div class="tabs" role="tablist">
+            <button id="pitchingTab" class="active" data-kind="pitching">
+              Pitching</button
+            ><button id="hittingTab" data-kind="hitting">Hitting</button
+            ><button id="performanceTab" type="button">High Performance</button>
           </div>
-          <span id="hpResultCount"></span>
-        </div>
-        <div id="hpAthletes" class="hpAthletes"></div>
-      </div>
-      <div class="catalogMode" role="group" aria-label="Browse recordings by"><span>Browse by</span><div><button id="filesMode" type="button" class="active" aria-pressed="true">Files</button><button id="athletesMode" type="button" aria-pressed="false">Athletes</button></div></div>
-      <button id="compareModeButton" class="compareModeButton" type="button" aria-pressed="false"><span class="compareModeIcon" aria-hidden="true">▣</span><span>Compare replays</span><span id="compareModeCount" hidden></span></button>
-      <div class="filters"><div class="searchLine"><input id="search" type="search" placeholder="Search recordings" aria-label="Search recordings"><button id="filterButton" class="filterButton" type="button" aria-expanded="false" aria-controls="filterPanel">Filters <span id="filterBadge" hidden></span></button></div><div id="filterPanel" class="filterPanel" hidden>
-        <div class="filterGrid"><label>Availability<select id="statusFilter"><option value="all">All recordings</option><option value="linked">Raw + processed</option><option value="raw-only">Raw C3D only</option><option value="processed-only">Processed only</option><option value="static-model">Calibration models</option></select></label><label>Sort by<select id="sortFilter"></select></label><label>Order<select id="orderFilter"><option value="desc">High to low / Z to A</option><option value="asc">Low to high / A to Z</option></select></label><label>Handedness<select id="sideFilter"><option value="all">Either side</option><option value="R">Right</option><option value="L">Left</option></select></label><label id="typeFilterWrap">Pitch type<select id="typeFilter"><option value="all">All pitch types</option></select></label><label>Playing level<select id="levelFilter"><option value="all">All levels</option></select></label><label>Metric range<select id="metricFilter"></select></label><div class="filterRange"><label>Min<input id="minFilter" type="number" step="any" placeholder="Any"></label><label>Max<input id="maxFilter" type="number" step="any" placeholder="Any"></label></div></div><details id="moreSort" class="moreSort"><summary>More sort options</summary><div class="moreSortPanel"><input id="moreSortSearch" type="search" placeholder="Find a published metric…" aria-label="Search additional sorting metrics"><p>Released trial summaries · missing values sort last</p><div id="moreSortOptions"></div></div></details><button id="clearFilters" class="clearFilters" type="button">Clear filters</button>
-      </div><span id="resultCount"></span></div>
-      <div id="catalogList" class="catalogList"></div><div class="railFoot"><a href="/README.md" target="_blank">Guide and definitions ↗</a></div>
-    </div>
-  </aside>
-  <section class="workspace">
-    <section id="hpWorkspace" class="hpWorkspace" hidden>
-      <div id="hpAthleteHeader" class="hpAthleteHeader"></div>
-      <section class="hpSection"><div class="hpSectionHead"><div><h3>Pitch and bat speed</h3><p>Distribution across athletes and dated session results for the selected athlete.</p></div><div class="hpSpeedActions"><strong id="hpSpeedCurrent"></strong><label class="hpMetricPicker">Speed<select id="hpSpeed"><option value="pitch_speed_mph">Pitch speed</option><option value="bat_speed_mph">Bat speed</option></select></label></div></div><div class="hpVisualGrid"><div class="hpVisual"><h4 id="hpSpeedDistributionTitle">Pitch speed distribution</h4><div id="hpSpeedDistribution"></div></div><div class="hpVisual"><h4 id="hpSpeedTrendTitle">Pitch speed history</h4><div id="hpSpeedTrend"></div></div></div></section>
-      <div id="hpSummary" class="hpSummary"></div>
-      <section class="hpSection"><div class="hpSectionHead"><div><h3 id="hpProfileTitle">Assessment profile</h3><p id="hpProfileNote"></p></div><div class="hpAssessmentSwitch"><button id="hpAssessmentPrev" type="button" aria-label="Previous assessment">‹</button><label>Assessment<select id="hpAssessment" aria-label="Select an athlete assessment"></select></label><button id="hpAssessmentNext" type="button" aria-label="Next assessment">›</button></div></div><div id="hpProfile" class="hpProfile"></div></section>
-      <section class="hpSection"><div class="hpSectionHead"><div><h3>Explore a measure</h3><p>Choose any released numeric measure. Distributions use one latest available value per athlete at the selected playing level.</p></div><label class="hpMetricPicker hpMeasurePicker">Measure<select id="hpMetric"></select></label></div><div class="hpVisualGrid"><div class="hpVisual"><h4 id="hpDistributionTitle">Distribution</h4><div id="hpDistribution"></div></div><div class="hpVisual"><h4 id="hpTrendTitle">Assessment history</h4><div id="hpTrend"></div></div></div></section>
-      <section class="hpSection"><div class="hpSectionHead"><div><h3 id="hpScatterTitle">Assessment and pitch speed</h3><p>Hover over a dot for values or to remove it.</p></div><div class="hpScatterControls"><label class="hpMetricPicker hpScatterPicker">X axis<select id="hpScatterMetric" aria-label="Scatterplot X-axis measure"></select></label><label class="hpFitToggle"><input id="hpFitLine" type="checkbox">Linear fit</label><button id="hpRestorePoints" type="button" hidden>Restore removed</button></div></div><div id="hpScatter" class="hpScatter"><div id="hpScatterPlot"></div><div id="hpScatterPopup" class="hpScatterPopup" hidden><strong id="hpPopupName"></strong><span id="hpPopupValues"></span><div><button id="hpPopupRemove" type="button">× Remove point</button></div></div></div></section>
-      <p class="hpSourceNote">These are summary test results, not force curves or motion capture replays. Athlete IDs cannot be matched to the pitching and hitting replay IDs from the public files. <a href="https://github.com/drivelineresearch/openbiomechanics/tree/main/high_performance" target="_blank" rel="noopener">Dataset guide ↗</a></p>
-    </section>
-    <header class="workspaceHead">
-      <div class="trialHeading"><h2 id="trialTitle">Select a recording</h2><p id="trialSubtitle">The selected recording will appear here.</p></div>
-      <div class="headActions">
-        <div class="actionGroup" role="group" aria-label="Explore motion"><span class="actionGroupLabel">Explore</span>
-        <button id="keypointModeButton" type="button" aria-pressed="false" aria-controls="keypointLayer" title="Explore motion and force signals at anatomical points" disabled>Explore keypoints</button>
-        <div class="menuWrap">
-          <button id="focusMenuButton" class="menuTrigger" type="button" aria-expanded="false" aria-controls="focusMenu">Focus in 3D <span aria-hidden="true">⌄</span></button>
-          <div id="focusMenu" class="popover" hidden>
-            <div class="focusCameraControl" role="group" aria-label="Focus camera behavior"><span>Camera</span><div><button id="focusCameraFree" type="button" class="active" aria-pressed="true">Free</button><button id="focusCameraFollow" type="button" aria-pressed="false">Follow focus</button></div></div>
-            <div id="focusBar" class="menuChoices" role="group" aria-label="3D focus target">
-              <button type="button" data-focus="none" class="active" aria-pressed="true">Whole motion</button>
-              <div class="focusMenuHeading">Joint position</div>
-              <button type="button" data-focus="torso" aria-pressed="false">Torso rotation</button>
-              <button type="button" data-focus="torsoPelvis" aria-pressed="false">Torso–pelvis separation</button>
-              <button type="button" data-focus="pelvis" data-pitch-focus aria-pressed="false">Pelvis rotation</button>
-              <button type="button" data-focus="trunkForward" data-pitch-focus aria-pressed="false">Forward trunk tilt</button>
-              <button type="button" data-focus="trunkLateral" data-pitch-focus aria-pressed="false">Lateral trunk tilt</button>
-              <button type="button" id="shoulderFocusButton" data-focus="shoulder" aria-pressed="false">Shoulder external rotation</button>
-              <button type="button" data-focus="shoulderAbduction" data-pitch-focus aria-pressed="false">Shoulder abduction</button>
-              <button type="button" data-focus="shoulderHorizontal" data-pitch-focus aria-pressed="false">Scap load · horizontal abduction</button>
-              <button type="button" data-focus="elbow" aria-pressed="false">Elbow flexion</button>
-              <button type="button" data-focus="wrist" data-pitch-focus aria-pressed="false">Wrist extension</button>
-              <button type="button" data-focus="leadKnee" aria-pressed="false">Lead knee flexion</button>
-              <button type="button" data-focus="rearKnee" aria-pressed="false">Rear knee flexion</button>
-              <div class="focusMenuHeading" data-pitch-focus>Motion speed</div>
-              <button type="button" data-focus="pelvisSpeed" data-pitch-focus aria-pressed="false">Pelvis rotation speed</button>
-              <button type="button" data-focus="torsoSpeed" data-pitch-focus aria-pressed="false">Torso rotation speed</button>
-              <button type="button" data-focus="elbowExtensionSpeed" data-pitch-focus aria-pressed="false">Elbow extension speed</button>
-              <button type="button" data-focus="armInternalSpeed" data-pitch-focus aria-pressed="false">Arm internal rotation speed</button>
-              <button type="button" data-focus="leadKneeExtensionSpeed" data-pitch-focus aria-pressed="false">Lead knee extension speed</button>
+          <div id="hpRail" class="hpRail" hidden>
+            <div class="hpRailFilters filters">
+              <div class="hpSearchLine searchLine">
+                <input
+                  id="hpSearch"
+                  type="search"
+                  placeholder="Search athlete ID"
+                  aria-label="Search high performance athletes"
+                /><button
+                  id="hpFilterButton"
+                  class="filterButton"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="hpFilterPanel"
+                >
+                  Filters <span id="hpFilterBadge" hidden></span>
+                </button>
+              </div>
+              <div
+                id="hpModality"
+                class="hpModality"
+                role="group"
+                aria-label="High performance session type"
+              >
+                <button
+                  type="button"
+                  data-hp-modality="all"
+                  class="active"
+                  aria-pressed="true"
+                >
+                  All</button
+                ><button
+                  type="button"
+                  data-hp-modality="pitching"
+                  aria-pressed="false"
+                  title="Athletes with released pitching session data"
+                >
+                  Pitchers</button
+                ><button
+                  type="button"
+                  data-hp-modality="hitting"
+                  aria-pressed="false"
+                  title="Athletes with released hitting session data"
+                >
+                  Hitters
+                </button>
+              </div>
+              <div id="hpFilterPanel" class="filterPanel hpFilterPanel" hidden>
+                <div class="filterGrid">
+                  <label
+                    >Assessment data<select id="hpTestFilter">
+                      <option value="all">Any assessment</option>
+                      <option value="cmj">Countermovement jump</option>
+                      <option value="sj">Squat jump</option>
+                      <option value="imtp">Isometric mid-thigh pull</option>
+                      <option value="ht">Hop test</option>
+                      <option value="pp">Plyo pushup</option>
+                      <option value="mobility">Mobility / shoulder</option>
+                    </select></label
+                  >
+                  <label
+                    >Sort by<select id="hpSort">
+                      <option value="date">Latest assessment date</option>
+                      <option value="athlete">Athlete ID</option>
+                      <option value="assessments">Assessment count</option>
+                    </select></label
+                  >
+                  <label
+                    >Order<select id="hpSortOrder">
+                      <option value="desc">High to low / Z to A</option>
+                      <option value="asc">Low to high / A to Z</option>
+                    </select></label
+                  >
+                  <label
+                    >Playing level<select
+                      id="hpLevel"
+                      aria-label="Filter high performance playing level"
+                    >
+                      <option value="all">All playing levels</option>
+                      <option>High School</option>
+                      <option>College</option>
+                      <option>Pro</option>
+                    </select></label
+                  >
+                  <label
+                    >Metric range<select id="hpFilterMetric">
+                      <option value="">Any measure</option>
+                    </select></label
+                  >
+                  <div class="filterRange">
+                    <label
+                      >Min<input
+                        id="hpFilterMin"
+                        type="number"
+                        step="any"
+                        placeholder="Any" /></label
+                    ><label
+                      >Max<input
+                        id="hpFilterMax"
+                        type="number"
+                        step="any"
+                        placeholder="Any"
+                    /></label>
+                  </div>
+                </div>
+                <p>Uses each athlete’s latest available result.</p>
+                <button id="hpClearFilters" class="clearFilters" type="button">
+                  Clear filters
+                </button>
+              </div>
+              <span id="hpResultCount"></span>
             </div>
-            <a id="jointDefinitions" class="menuFooter" href="https://github.com/drivelineresearch/openbiomechanics/blob/main/baseball_pitching/README.md#L249-L259" target="_blank" rel="noopener">Angle definitions ↗</a>
+            <div id="hpAthletes" class="hpAthletes"></div>
+          </div>
+          <div
+            class="catalogMode"
+            role="group"
+            aria-label="Browse recordings by"
+          >
+            <span>Browse by</span>
+            <div>
+              <button
+                id="filesMode"
+                type="button"
+                class="active"
+                aria-pressed="true"
+              >
+                Files</button
+              ><button id="athletesMode" type="button" aria-pressed="false">
+                Athletes
+              </button>
+            </div>
+          </div>
+          <button
+            id="compareModeButton"
+            class="compareModeButton"
+            type="button"
+            aria-pressed="false"
+          >
+            <span class="compareModeIcon" aria-hidden="true">▣</span
+            ><span>Compare replays</span
+            ><span id="compareModeCount" hidden></span>
+          </button>
+          <div class="filters">
+            <div class="searchLine">
+              <input
+                id="search"
+                type="search"
+                placeholder="Search recordings"
+                aria-label="Search recordings"
+              /><button
+                id="filterButton"
+                class="filterButton"
+                type="button"
+                aria-expanded="false"
+                aria-controls="filterPanel"
+              >
+                Filters <span id="filterBadge" hidden></span>
+              </button>
+            </div>
+            <div id="filterPanel" class="filterPanel" hidden>
+              <div class="filterGrid">
+                <label
+                  >Availability<select id="statusFilter">
+                    <option value="all">All recordings</option>
+                    <option value="linked">Raw + processed</option>
+                    <option value="raw-only">Raw C3D only</option>
+                    <option value="processed-only">Processed only</option>
+                    <option value="static-model">Calibration models</option>
+                  </select></label
+                ><label>Sort by<select id="sortFilter"></select></label
+                ><label
+                  >Order<select id="orderFilter">
+                    <option value="desc">High to low / Z to A</option>
+                    <option value="asc">Low to high / A to Z</option>
+                  </select></label
+                ><label
+                  >Handedness<select id="sideFilter">
+                    <option value="all">Either side</option>
+                    <option value="R">Right</option>
+                    <option value="L">Left</option>
+                  </select></label
+                ><label id="typeFilterWrap"
+                  >Pitch type<select id="typeFilter">
+                    <option value="all">All pitch types</option>
+                  </select></label
+                ><label
+                  >Playing level<select id="levelFilter">
+                    <option value="all">All levels</option>
+                  </select></label
+                ><label>Metric range<select id="metricFilter"></select></label>
+                <div class="filterRange">
+                  <label
+                    >Min<input
+                      id="minFilter"
+                      type="number"
+                      step="any"
+                      placeholder="Any" /></label
+                  ><label
+                    >Max<input
+                      id="maxFilter"
+                      type="number"
+                      step="any"
+                      placeholder="Any"
+                  /></label>
+                </div>
+              </div>
+              <details id="moreSort" class="moreSort">
+                <summary>More sort options</summary>
+                <div class="moreSortPanel">
+                  <input
+                    id="moreSortSearch"
+                    type="search"
+                    placeholder="Find a published metric…"
+                    aria-label="Search additional sorting metrics"
+                  />
+                  <p>Released trial summaries · missing values sort last</p>
+                  <div id="moreSortOptions"></div>
+                </div>
+              </details>
+              <button id="clearFilters" class="clearFilters" type="button">
+                Clear filters
+              </button>
+            </div>
+            <span id="resultCount"></span>
+          </div>
+          <div id="catalogList" class="catalogList"></div>
+          <div class="railFoot">
+            <a href="/README.md" target="_blank">Guide and definitions ↗</a>
           </div>
         </div>
+      </aside>
+      <section class="workspace">
+        <section id="hpWorkspace" class="hpWorkspace" hidden>
+          <div id="hpAthleteHeader" class="hpAthleteHeader"></div>
+          <section class="hpSection">
+            <div class="hpSectionHead">
+              <div>
+                <h3>Pitch and bat speed</h3>
+                <p>
+                  Distribution across athletes and dated session results for the
+                  selected athlete.
+                </p>
+              </div>
+              <div class="hpSpeedActions">
+                <strong id="hpSpeedCurrent"></strong
+                ><label class="hpMetricPicker"
+                  >Speed<select id="hpSpeed">
+                    <option value="pitch_speed_mph">Pitch speed</option>
+                    <option value="bat_speed_mph">Bat speed</option>
+                  </select></label
+                >
+              </div>
+            </div>
+            <div class="hpVisualGrid">
+              <div class="hpVisual">
+                <h4 id="hpSpeedDistributionTitle">Pitch speed distribution</h4>
+                <div id="hpSpeedDistribution"></div>
+              </div>
+              <div class="hpVisual">
+                <h4 id="hpSpeedTrendTitle">Pitch speed history</h4>
+                <div id="hpSpeedTrend"></div>
+              </div>
+            </div>
+          </section>
+          <div id="hpSummary" class="hpSummary"></div>
+          <section class="hpSection">
+            <div class="hpSectionHead">
+              <div>
+                <h3 id="hpProfileTitle">Assessment profile</h3>
+                <p id="hpProfileNote"></p>
+              </div>
+              <div class="hpAssessmentSwitch">
+                <button
+                  id="hpAssessmentPrev"
+                  type="button"
+                  aria-label="Previous assessment"
+                >
+                  ‹</button
+                ><label
+                  >Assessment<select
+                    id="hpAssessment"
+                    aria-label="Select an athlete assessment"
+                  ></select></label
+                ><button
+                  id="hpAssessmentNext"
+                  type="button"
+                  aria-label="Next assessment"
+                >
+                  ›
+                </button>
+              </div>
+            </div>
+            <div id="hpProfile" class="hpProfile"></div>
+          </section>
+          <section class="hpSection">
+            <div class="hpSectionHead">
+              <div>
+                <h3>Explore a measure</h3>
+                <p>
+                  Choose any released numeric measure. Distributions use one
+                  latest available value per athlete at the selected playing
+                  level.
+                </p>
+              </div>
+              <label class="hpMetricPicker hpMeasurePicker"
+                >Measure<select id="hpMetric"></select
+              ></label>
+            </div>
+            <div class="hpVisualGrid">
+              <div class="hpVisual">
+                <h4 id="hpDistributionTitle">Distribution</h4>
+                <div id="hpDistribution"></div>
+              </div>
+              <div class="hpVisual">
+                <h4 id="hpTrendTitle">Assessment history</h4>
+                <div id="hpTrend"></div>
+              </div>
+            </div>
+          </section>
+          <section class="hpSection">
+            <div class="hpSectionHead">
+              <div>
+                <h3 id="hpScatterTitle">Assessment and pitch speed</h3>
+                <p>Hover over a dot for values or to remove it.</p>
+              </div>
+              <div class="hpScatterControls">
+                <label class="hpMetricPicker hpScatterPicker"
+                  >X axis<select
+                    id="hpScatterMetric"
+                    aria-label="Scatterplot X-axis measure"
+                  ></select></label
+                ><label class="hpFitToggle"
+                  ><input id="hpFitLine" type="checkbox" />Linear fit</label
+                ><button id="hpRestorePoints" type="button" hidden>
+                  Restore removed
+                </button>
+              </div>
+            </div>
+            <div id="hpScatter" class="hpScatter">
+              <div id="hpScatterPlot"></div>
+              <div id="hpScatterPopup" class="hpScatterPopup" hidden>
+                <strong id="hpPopupName"></strong
+                ><span id="hpPopupValues"></span>
+                <div>
+                  <button id="hpPopupRemove" type="button">
+                    × Remove point
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+          <p class="hpSourceNote">
+            These are summary test results, not force curves or motion capture
+            replays. Athlete IDs cannot be matched to the pitching and hitting
+            replay IDs from the public files.
+            <a
+              href="https://github.com/drivelineresearch/openbiomechanics/tree/main/high_performance"
+              target="_blank"
+              rel="noopener"
+              >Dataset guide ↗</a
+            >
+          </p>
+        </section>
+        <header class="workspaceHead">
+          <div class="trialHeading">
+            <h2 id="trialTitle">Select a recording</h2>
+            <p id="trialSubtitle">The selected recording will appear here.</p>
+          </div>
+          <div class="headActions">
+            <div class="actionGroup" role="group" aria-label="Explore motion">
+              <span class="actionGroupLabel">Explore</span>
+              <button
+                id="keypointModeButton"
+                type="button"
+                aria-pressed="false"
+                aria-controls="keypointLayer"
+                title="Explore motion and force signals at anatomical points"
+                disabled
+              >
+                Explore keypoints
+              </button>
+              <div class="menuWrap">
+                <button
+                  id="focusMenuButton"
+                  class="menuTrigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="focusMenu"
+                >
+                  Focus in 3D <span aria-hidden="true">⌄</span>
+                </button>
+                <div id="focusMenu" class="popover" hidden>
+                  <div
+                    class="focusCameraControl"
+                    role="group"
+                    aria-label="Focus camera behavior"
+                  >
+                    <span>Camera</span>
+                    <div>
+                      <button
+                        id="focusCameraFree"
+                        type="button"
+                        class="active"
+                        aria-pressed="true"
+                      >
+                        Free</button
+                      ><button
+                        id="focusCameraFollow"
+                        type="button"
+                        aria-pressed="false"
+                      >
+                        Follow focus
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    id="focusBar"
+                    class="menuChoices"
+                    role="group"
+                    aria-label="3D focus target"
+                  >
+                    <button
+                      type="button"
+                      data-focus="none"
+                      class="active"
+                      aria-pressed="true"
+                    >
+                      Whole motion
+                    </button>
+                    <div class="focusMenuHeading">Joint position</div>
+                    <button
+                      type="button"
+                      data-focus="torso"
+                      aria-pressed="false"
+                    >
+                      Torso rotation
+                    </button>
+                    <button
+                      type="button"
+                      data-focus="torsoPelvis"
+                      aria-pressed="false"
+                    >
+                      Torso–pelvis separation
+                    </button>
+                    <button
+                      type="button"
+                      data-focus="pelvis"
+                      data-pitch-focus
+                      aria-pressed="false"
+                    >
+                      Pelvis rotation
+                    </button>
+                    <button
+                      type="button"
+                      data-focus="trunkForward"
+                      data-pitch-focus
+                      aria-pressed="false"
+                    >
+                      Forward trunk tilt
+                    </button>
+                    <button
+                      type="button"
+                      data-focus="trunkLateral"
+                      data-pitch-focus
+                      aria-pressed="false"
+                    >
+                      Lateral trunk tilt
+                    </button>
+                    <button
+                      type="button"
+                      id="shoulderFocusButton"
+                      data-focus="shoulder"
+                      aria-pressed="false"
+                    >
+                      Shoulder external rotation
+                    </button>
+                    <button
+                      type="button"
+                      data-focus="shoulderAbduction"
+                      data-pitch-focus
+                      aria-pressed="false"
+                    >
+                      Shoulder abduction
+                    </button>
+                    <button
+                      type="button"
+                      data-focus="shoulderHorizontal"
+                      data-pitch-focus
+                      aria-pressed="false"
+                    >
+                      Scap load · horizontal abduction
+                    </button>
+                    <button
+                      type="button"
+                      data-focus="elbow"
+                      aria-pressed="false"
+                    >
+                      Elbow flexion
+                    </button>
+                    <button
+                      type="button"
+                      data-focus="wrist"
+                      data-pitch-focus
+                      aria-pressed="false"
+                    >
+                      Wrist extension
+                    </button>
+                    <button
+                      type="button"
+                      data-focus="leadKnee"
+                      aria-pressed="false"
+                    >
+                      Lead knee flexion
+                    </button>
+                    <button
+                      type="button"
+                      data-focus="rearKnee"
+                      aria-pressed="false"
+                    >
+                      Rear knee flexion
+                    </button>
+                    <div class="focusMenuHeading" data-pitch-focus>
+                      Motion speed
+                    </div>
+                    <button
+                      type="button"
+                      data-focus="pelvisSpeed"
+                      data-pitch-focus
+                      aria-pressed="false"
+                    >
+                      Pelvis rotation speed
+                    </button>
+                    <button
+                      type="button"
+                      data-focus="torsoSpeed"
+                      data-pitch-focus
+                      aria-pressed="false"
+                    >
+                      Torso rotation speed
+                    </button>
+                    <button
+                      type="button"
+                      data-focus="elbowExtensionSpeed"
+                      data-pitch-focus
+                      aria-pressed="false"
+                    >
+                      Elbow extension speed
+                    </button>
+                    <button
+                      type="button"
+                      data-focus="armInternalSpeed"
+                      data-pitch-focus
+                      aria-pressed="false"
+                    >
+                      Arm internal rotation speed
+                    </button>
+                    <button
+                      type="button"
+                      data-focus="leadKneeExtensionSpeed"
+                      data-pitch-focus
+                      aria-pressed="false"
+                    >
+                      Lead knee extension speed
+                    </button>
+                  </div>
+                  <a
+                    id="jointDefinitions"
+                    class="menuFooter"
+                    href="https://github.com/drivelineresearch/openbiomechanics/blob/main/baseball_pitching/README.md#L249-L259"
+                    target="_blank"
+                    rel="noopener"
+                    >Angle definitions ↗</a
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="actionGroup" role="group" aria-label="Camera controls">
+              <span class="actionGroupLabel">Camera</span>
+              <button
+                id="resetView"
+                type="button"
+                title="Reset camera"
+                aria-label="Reset camera"
+              >
+                Reset
+              </button>
+              <label class="toolbarSelect"
+                ><span class="srOnly">Camera view</span
+                ><select id="cameraPreset" aria-label="Camera view">
+                  <option value="iso">Isometric</option>
+                  <option value="front">Front</option>
+                  <option value="side">Side</option>
+                  <option value="top">Top</option>
+                </select></label
+              >
+              <button
+                id="planeViewsToggle"
+                type="button"
+                aria-pressed="false"
+                aria-controls="planeViews"
+              >
+                Plane views
+              </button>
+            </div>
+            <div
+              class="actionGroup cohortTools"
+              role="group"
+              aria-label="Peer percentile bands"
+            >
+              <span class="actionGroupLabel">Peers</span
+              ><button
+                id="cohortBands"
+                type="button"
+                aria-pressed="false"
+                title="Show the athlete-weighted 25th–75th percentile of processed peer signals in every plot"
+              >
+                25–75% bands</button
+              ><select id="cohortScope" aria-label="Peer cohort">
+                <option value="level">Same playing level</option>
+                <option value="all">All playing levels</option></select
+              ><small id="cohortStatus" class="srOnly" role="status"></small>
+            </div>
+            <div class="actionGroup" role="group" aria-label="Movie export">
+              <span class="actionGroupLabel">Export</span>
+              <button
+                id="saveMP4"
+                type="button"
+                title="Render a trimmable MP4 of the current 3D view in the background"
+              >
+                Save MP4
+              </button>
+              <label
+                class="movieInfoToggle"
+                title="Include the title, metric legends, and playback time in the saved MP4"
+                ><input
+                  id="movieInfoBoxes"
+                  type="checkbox"
+                  aria-label="Include info boxes in MP4"
+                />Info boxes</label
+              >
+            </div>
+          </div>
+        </header>
+        <section
+          id="compareToolbar"
+          class="compareToolbar"
+          aria-label="Replay comparison"
+          hidden
+        >
+          <div class="compareToolbarHead">
+            <strong>Replay comparison</strong>
+            <div class="compareSelectors">
+              <label
+                >Sync at<select id="compareSync">
+                  <option value="event">Release / contact</option>
+                  <option value="foot_contact">Foot contact</option>
+                  <option value="foot_plant">Foot plant</option>
+                  <option value="start">Recording start</option>
+                  <option value="normalized">Recording progress</option>
+                </select></label
+              ><label
+                >Position<select id="comparePosition">
+                  <option value="pelvis">Align pelvis</option>
+                  <option value="lab">Lab coordinates</option>
+                </select></label
+              ><button
+                id="compareSharedTrailScale"
+                class="compareSplit"
+                type="button"
+                aria-pressed="false"
+                title="Use one combined minimum and maximum for all selected trail colors. Off: each replay uses its own scale."
+              >
+                Shared trail scale</button
+              ><button
+                id="compareSplit"
+                class="compareSplit"
+                type="button"
+                aria-pressed="false"
+                aria-controls="splitPaneGrid"
+              >
+                Split panes</button
+              ><button
+                id="compareKeypointInViewer"
+                class="compareSplit"
+                type="button"
+                aria-pressed="false"
+                title="Place selected keypoint charts inside their 3D views; drag titles to move and corners to resize"
+              >
+                Charts in viewer
+              </button>
+            </div>
+          </div>
+          <div id="compareTrialControls" class="compareTrialControls"></div>
+        </section>
+        <div class="stageWrap">
+          <div id="stage"></div>
+          <div
+            id="splitPaneGrid"
+            class="splitPaneGrid"
+            aria-label="Separate replay views"
+            hidden
+          ></div>
+          <div
+            id="planeViews"
+            class="planeViews"
+            aria-label="Orthographic plane views"
+            hidden
+          >
+            <div
+              class="planeView"
+              data-plane="xy"
+              aria-label="XY plane, viewed from above"
+            >
+              <span>XY</span>
+            </div>
+            <div
+              class="planeView"
+              data-plane="yz"
+              aria-label="YZ plane, viewed along X"
+            >
+              <span>YZ</span>
+            </div>
+            <div
+              class="planeView"
+              data-plane="xz"
+              aria-label="XZ plane, viewed along Y"
+            >
+              <span>XZ</span>
+            </div>
+          </div>
+          <div id="armSweepLegend" class="armSweepLegend" hidden>
+            <div class="armSweepLegendHead">
+              <strong id="armSweepTitle">Elbow varus moment</strong
+              ><span id="armSweepCurrent"></span>
+            </div>
+            <div class="armSweepGradient"></div>
+            <div class="armSweepTicks">
+              <span>0</span><span id="armSweepMid"></span
+              ><span id="armSweepPeak"></span>
+            </div>
+            <small id="armSweepPhase"></small>
+          </div>
+          <div id="powerLegend" class="powerLegend" hidden>
+            <div class="powerLegendHead">
+              <div class="powerLegendTitle">
+                <strong id="powerLegendTitle"
+                  >Joint generation / absorption</strong
+                >
+                <details id="powerInfo" class="powerInfo">
+                  <summary
+                    aria-label="About this color map"
+                    title="About this color map"
+                  >
+                    i
+                  </summary>
+                  <div class="powerInfoPanel">
+                    <p id="powerInfoText"></p>
+                    <label class="powerScaleToggle"
+                      ><input id="powerLocalScale" type="checkbox" /><span
+                        ><strong>Scale each location separately</strong
+                        ><small
+                          >Off: one shared scale for this replay</small
+                        ></span
+                      ></label
+                    >
+                  </div>
+                </details>
+              </div>
+              <span id="powerLegendUnit">W</span>
+            </div>
+            <div id="powerGradient" class="powerGradient"></div>
+            <div class="powerLegendTicks">
+              <span id="powerNegative"></span><span id="powerMiddle">0</span
+              ><span id="powerPositive"></span>
+            </div>
+            <div id="powerJointReadout" class="powerJointReadout"></div>
+          </div>
+          <div id="keypointLayer" class="keypointLayer" hidden>
+            <div class="keypointToolbar">
+              <label
+                >Show
+                <select
+                  id="keypointCategory"
+                  aria-label="Keypoint source group"
+                >
+                  <option value="core">Essentials</option>
+                  <option value="full">Full body</option>
+                  <option value="joints">Joints and motion</option>
+                  <option value="kinetics">Forces and power</option>
+                  <option value="raw">Raw C3D markers</option>
+                </select></label
+              ><input
+                id="keypointSearch"
+                type="search"
+                placeholder="Find marker"
+                aria-label="Filter raw marker names"
+                hidden
+              /><span id="keypointCount"></span>
+            </div>
+            <div id="keypointHotspots" class="keypointHotspots"></div>
+            <section
+              id="keypointCard"
+              class="keypointCard"
+              aria-label="Selected keypoint signal"
+              hidden
+            >
+              <header>
+                <strong id="keypointCardTitle"></strong
+                ><button
+                  id="keypointCardClose"
+                  type="button"
+                  aria-label="Close keypoint chart"
+                >
+                  ×
+                </button>
+              </header>
+              <label
+                >Signal<select
+                  id="keypointSignal"
+                  aria-label="Signal at selected keypoint"
+                ></select
+              ></label>
+              <div class="keypointLive">
+                <strong id="keypointValue">—</strong
+                ><span id="keypointSource"></span>
+              </div>
+              <canvas
+                id="keypointPlot"
+                width="640"
+                height="308"
+                aria-label="Signal over recording time; drag to scrub"
+              ></canvas>
+              <div class="keypointPlotHint">
+                Drag the chart to scrub the replay.
+              </div>
+              <button id="keypointMapButton" type="button" hidden>
+                Color skeleton by this signal
+              </button>
+            </section>
+          </div>
+          <div class="axisLegend">
+            <span class="axisX">X</span><span class="axisY">Y</span
+            ><span class="axisZ">Z ↑</span>
+          </div>
         </div>
-        <div class="actionGroup" role="group" aria-label="Camera controls"><span class="actionGroupLabel">Camera</span>
-        <button id="resetView" type="button" title="Reset camera" aria-label="Reset camera">Reset</button>
-        <label class="toolbarSelect"><span class="srOnly">Camera view</span><select id="cameraPreset" aria-label="Camera view"><option value="iso">Isometric</option><option value="front">Front</option><option value="side">Side</option><option value="top">Top</option></select></label>
-        <button id="planeViewsToggle" type="button" aria-pressed="false" aria-controls="planeViews">Plane views</button>
+        <div
+          id="soloDisplayLayers"
+          class="soloDisplayLayers"
+          role="group"
+          aria-label="Display layers"
+        >
+          <div class="layerMenus">
+            <details class="layerMenu">
+              <summary>Body display</summary>
+              <div class="layerMenuPanel">
+                <button
+                  type="button"
+                  id="showSolid"
+                  class="soloLayer active"
+                  aria-pressed="true"
+                >
+                  Thick segments
+                </button>
+                <button
+                  type="button"
+                  id="showThin"
+                  class="soloLayer active"
+                  aria-pressed="true"
+                >
+                  Thin skeleton
+                </button>
+                <button
+                  type="button"
+                  id="showJoints"
+                  class="soloLayer active"
+                  aria-pressed="true"
+                >
+                  Joint centers
+                </button>
+                <button
+                  type="button"
+                  id="showMarkers"
+                  class="soloLayer"
+                  aria-pressed="false"
+                >
+                  Raw markers
+                </button>
+                <button
+                  type="button"
+                  id="showCOM"
+                  class="soloLayer"
+                  aria-pressed="false"
+                  title="Released centerofmass XYZ; amber joint-sized nodule"
+                >
+                  Center of mass
+                </button>
+                <button
+                  type="button"
+                  id="showCOMTrail"
+                  class="soloLayer"
+                  aria-pressed="false"
+                  title="COM position history through the playhead; missing intervals are not connected"
+                >
+                  COM trail
+                </button>
+                <button
+                  type="button"
+                  id="showTrunkAxis"
+                  class="soloLayer"
+                  aria-pressed="false"
+                  title="Hip-midpoint to shoulder-midpoint axis and vertical reference. Geometric guide, not angular momentum or a stability score."
+                >
+                  Trunk axis · geometric guide
+                </button>
+                <button
+                  type="button"
+                  id="showBraking"
+                  class="soloLayer"
+                  aria-pressed="false"
+                  title="Signed lead-foot horizontal GRF in lab X, drawn near the ankle, not a measured COP. Cyan opposes COM X motion. 0.45 m per BW; 1.8 m display cap."
+                >
+                  Lead-leg braking / force X
+                </button>
+                <button
+                  type="button"
+                  id="showKneeExtension"
+                  class="soloLayer"
+                  aria-pressed="false"
+                  title="Green extension / orange flexion; rate = negative released knee flexion velocity. Arc is geometric; numeric flexion is model output."
+                >
+                  Lead-knee extension
+                </button>
+                <button
+                  type="button"
+                  id="showTrail"
+                  class="soloLayer active"
+                  aria-pressed="true"
+                >
+                  Trail
+                </button>
+                <button
+                  type="button"
+                  id="showArmSweep"
+                  class="soloLayer"
+                  aria-pressed="false"
+                  hidden
+                >
+                  Arm sweep · varus moment
+                </button>
+                <label id="armSweepMetricWrap" hidden
+                  >Arm trail metric<select
+                    id="armSweepMetric"
+                    aria-label="Arm trail moment"
+                  >
+                    <option value="varus">Elbow varus moment (+Y)</option>
+                    <option value="valgus">Elbow valgus moment (−Y)</option>
+                  </select></label
+                >
+              </div>
+            </details>
+            <details class="layerMenu">
+              <summary>Scene display</summary>
+              <div class="layerMenuPanel">
+                <button
+                  type="button"
+                  id="showEventPoint"
+                  class="soloLayer active"
+                  aria-pressed="true"
+                >
+                  Release point
+                </button>
+                <button
+                  type="button"
+                  id="showHitTrax"
+                  class="soloLayer"
+                  aria-pressed="false"
+                  hidden
+                >
+                  HitTrax launch direction
+                </button>
+                <button
+                  type="button"
+                  id="showPlates"
+                  class="soloLayer active"
+                  aria-pressed="true"
+                >
+                  Force plates
+                </button>
+                <button
+                  type="button"
+                  id="showForces"
+                  class="soloLayer active"
+                  aria-pressed="true"
+                  title="Individual force-plate measurements reconstructed from the C3D"
+                >
+                  Force plate vectors
+                </button>
+                <button
+                  type="button"
+                  id="showBall"
+                  class="soloLayer"
+                  aria-pressed="false"
+                >
+                  Fake ball
+                </button>
+              </div>
+            </details>
+          </div>
+          <div class="colorTools">
+            <button
+              type="button"
+              id="showPowerMap"
+              class="soloLayer"
+              aria-pressed="false"
+              hidden
+            >
+              Color skeleton
+            </button>
+            <label id="powerModeWrap" class="powerModeControl" hidden
+              ><span>Metric</span
+              ><select id="powerMode" aria-label="Skeleton color metric">
+                <optgroup label="Power and work">
+                  <option value="generated">
+                    Joint generation / absorption
+                  </option>
+                  <option value="jfp">Joint-force transfer power</option>
+                  <option value="stp">Segment-torque transfer power</option>
+                  <option value="work">Net joint work since PKH</option>
+                  <option value="endpoint">Segment-endpoint power</option>
+                </optgroup>
+                <optgroup label="Moments and motion">
+                  <option value="moment">Joint moment magnitude</option>
+                  <option value="angular">Angular velocity magnitude</option>
+                  <option value="hittingAngular">Joint angular speed</option>
+                  <option value="jointSpeed">Joint-center linear speed</option>
+                </optgroup>
+                <optgroup label="Ground reaction force · processed">
+                  <option value="grf">Ground reaction force magnitude</option>
+                  <option value="grfVertical">
+                    Vertical ground reaction force
+                  </option>
+                </optgroup>
+              </select></label
+            >
+          </div>
         </div>
-        <div class="actionGroup cohortTools" role="group" aria-label="Peer percentile bands"><span class="actionGroupLabel">Peers</span><button id="cohortBands" type="button" aria-pressed="false" title="Show the athlete-weighted 25th–75th percentile of processed peer signals in every plot">25–75% bands</button><select id="cohortScope" aria-label="Peer cohort"><option value="level">Same playing level</option><option value="all">All playing levels</option></select><small id="cohortStatus" class="srOnly" role="status"></small></div>
-        <div class="actionGroup" role="group" aria-label="Movie export"><span class="actionGroupLabel">Export</span>
-        <button id="saveMP4" type="button" title="Render a trimmable MP4 of the current 3D view in the background">Save MP4</button>
-        <label class="movieInfoToggle" title="Include the title, metric legends, and playback time in the saved MP4"><input id="movieInfoBoxes" type="checkbox" aria-label="Include info boxes in MP4">Info boxes</label>
+        <div class="transport">
+          <div class="transportTop">
+            <div class="transportButtons">
+              <button
+                id="playButton"
+                class="playButton"
+                type="button"
+                aria-label="Play"
+              >
+                ▶</button
+              ><button
+                id="stepBack"
+                type="button"
+                title="Previous frame"
+                aria-label="Previous frame"
+              >
+                ◂</button
+              ><button
+                id="stepForward"
+                type="button"
+                title="Next frame"
+                aria-label="Next frame"
+              >
+                ▸</button
+              ><button
+                id="loopButton"
+                type="button"
+                aria-pressed="false"
+                title="Loop playback"
+              >
+                ↻ Loop
+              </button>
+            </div>
+            <div class="transportClock">
+              <strong id="timeText">0.000 / 0.000 s</strong
+              ><select id="playSpeed" aria-label="Replay speed">
+                <option value="0.1">0.1×</option>
+                <option value="0.25">0.25×</option>
+                <option value="0.5">0.5×</option>
+                <option value="0.75">0.75×</option>
+                <option value="1" selected>1×</option>
+              </select>
+            </div>
+          </div>
+          <div class="timelineBlock">
+            <div id="scrub" class="scrub">
+              <div id="scrubFill" class="scrubFill"></div>
+              <div id="scrubEvents" class="scrubEvents"></div>
+              <input
+                id="timeline"
+                type="range"
+                min="0"
+                max="1"
+                step="0.0001"
+                value="0"
+                aria-label="Scrub replay time"
+              /><button id="eventPopup" class="eventPopup" type="button" hidden>
+                <span id="eventPopupName"></span
+                ><time id="eventPopupTime"></time>
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
-    </header>
-    <section id="compareToolbar" class="compareToolbar" aria-label="Replay comparison" hidden><div class="compareToolbarHead"><strong>Replay comparison</strong><div class="compareSelectors"><label>Sync at<select id="compareSync"><option value="event">Release / contact</option><option value="foot_contact">Foot contact</option><option value="foot_plant">Foot plant</option><option value="start">Recording start</option><option value="normalized">Recording progress</option></select></label><label>Position<select id="comparePosition"><option value="pelvis">Align pelvis</option><option value="lab">Lab coordinates</option></select></label><button id="compareSharedTrailScale" class="compareSplit" type="button" aria-pressed="false" title="Use one combined minimum and maximum for all selected trail colors. Off: each replay uses its own scale.">Shared trail scale</button><button id="compareSplit" class="compareSplit" type="button" aria-pressed="false" aria-controls="splitPaneGrid">Split panes</button><button id="compareKeypointInViewer" class="compareSplit" type="button" aria-pressed="false" title="Place selected keypoint charts inside their 3D views; drag titles to move and corners to resize">Charts in viewer</button></div></div><div id="compareTrialControls" class="compareTrialControls"></div></section>
-    <div class="stageWrap"><div id="stage"></div><div id="splitPaneGrid" class="splitPaneGrid" aria-label="Separate replay views" hidden></div><div id="planeViews" class="planeViews" aria-label="Orthographic plane views" hidden><div class="planeView" data-plane="xy" aria-label="XY plane, viewed from above"><span>XY</span></div><div class="planeView" data-plane="yz" aria-label="YZ plane, viewed along X"><span>YZ</span></div><div class="planeView" data-plane="xz" aria-label="XZ plane, viewed along Y"><span>XZ</span></div></div><div id="armSweepLegend" class="armSweepLegend" hidden><div class="armSweepLegendHead"><strong id="armSweepTitle">Elbow varus moment</strong><span id="armSweepCurrent"></span></div><div class="armSweepGradient"></div><div class="armSweepTicks"><span>0</span><span id="armSweepMid"></span><span id="armSweepPeak"></span></div><small id="armSweepPhase"></small></div><div id="powerLegend" class="powerLegend" hidden><div class="powerLegendHead"><div class="powerLegendTitle"><strong id="powerLegendTitle">Joint generation / absorption</strong><details id="powerInfo" class="powerInfo"><summary aria-label="About this color map" title="About this color map">i</summary><div class="powerInfoPanel"><p id="powerInfoText"></p><label class="powerScaleToggle"><input id="powerLocalScale" type="checkbox"><span><strong>Scale each location separately</strong><small>Off: one shared scale for this replay</small></span></label></div></details></div><span id="powerLegendUnit">W</span></div><div id="powerGradient" class="powerGradient"></div><div class="powerLegendTicks"><span id="powerNegative"></span><span id="powerMiddle">0</span><span id="powerPositive"></span></div><div id="powerJointReadout" class="powerJointReadout"></div></div><div id="keypointLayer" class="keypointLayer" hidden><div class="keypointToolbar"><label>Show <select id="keypointCategory" aria-label="Keypoint source group"><option value="core">Essentials</option><option value="full">Full body</option><option value="joints">Joints and motion</option><option value="kinetics">Forces and power</option><option value="raw">Raw C3D markers</option></select></label><input id="keypointSearch" type="search" placeholder="Find marker" aria-label="Filter raw marker names" hidden><span id="keypointCount"></span></div><div id="keypointHotspots" class="keypointHotspots"></div><section id="keypointCard" class="keypointCard" aria-label="Selected keypoint signal" hidden><header><strong id="keypointCardTitle"></strong><button id="keypointCardClose" type="button" aria-label="Close keypoint chart">×</button></header><label>Signal<select id="keypointSignal" aria-label="Signal at selected keypoint"></select></label><div class="keypointLive"><strong id="keypointValue">—</strong><span id="keypointSource"></span></div><canvas id="keypointPlot" width="640" height="308" aria-label="Signal over recording time; drag to scrub"></canvas><div class="keypointPlotHint">Drag the chart to scrub the replay.</div><button id="keypointMapButton" type="button" hidden>Color skeleton by this signal</button></section></div><div class="axisLegend"><span class="axisX">X</span><span class="axisY">Y</span><span class="axisZ">Z ↑</span></div></div>
-    <div id="soloDisplayLayers" class="soloDisplayLayers" role="group" aria-label="Display layers">
-      <div class="layerMenus">
-        <details class="layerMenu"><summary>Body display</summary><div class="layerMenuPanel">
-          <button type="button" id="showSolid" class="soloLayer active" aria-pressed="true">Thick segments</button>
-          <button type="button" id="showThin" class="soloLayer active" aria-pressed="true">Thin skeleton</button>
-          <button type="button" id="showJoints" class="soloLayer active" aria-pressed="true">Joint centers</button>
-          <button type="button" id="showMarkers" class="soloLayer" aria-pressed="false">Raw markers</button>
-          <button type="button" id="showCOM" class="soloLayer" aria-pressed="false" title="Released centerofmass XYZ; amber joint-sized nodule">Center of mass</button>
-          <button type="button" id="showCOMTrail" class="soloLayer" aria-pressed="false" title="COM position history through the playhead; missing intervals are not connected">COM trail</button>
-          <button type="button" id="showTrunkAxis" class="soloLayer" aria-pressed="false" title="Hip-midpoint to shoulder-midpoint axis and vertical reference. Geometric guide, not angular momentum or a stability score.">Trunk axis · geometric guide</button>
-          <button type="button" id="showBraking" class="soloLayer" aria-pressed="false" title="Signed lead-foot horizontal GRF in lab X, drawn near the ankle, not a measured COP. Cyan opposes COM X motion. 0.45 m per BW; 1.8 m display cap.">Lead-leg braking / force X</button>
-          <button type="button" id="showKneeExtension" class="soloLayer" aria-pressed="false" title="Green extension / orange flexion; rate = negative released knee flexion velocity. Arc is geometric; numeric flexion is model output.">Lead-knee extension</button>
-          <button type="button" id="showTrail" class="soloLayer active" aria-pressed="true">Trail</button>
-          <button type="button" id="showArmSweep" class="soloLayer" aria-pressed="false" hidden>Arm sweep · varus moment</button>
-          <label id="armSweepMetricWrap" hidden>Arm trail metric<select id="armSweepMetric" aria-label="Arm trail moment"><option value="varus">Elbow varus moment (+Y)</option><option value="valgus">Elbow valgus moment (−Y)</option></select></label>
-        </div></details>
-        <details class="layerMenu"><summary>Scene display</summary><div class="layerMenuPanel">
-          <button type="button" id="showEventPoint" class="soloLayer active" aria-pressed="true">Release point</button>
-          <button type="button" id="showHitTrax" class="soloLayer" aria-pressed="false" hidden>HitTrax launch direction</button>
-          <button type="button" id="showPlates" class="soloLayer active" aria-pressed="true">Force plates</button>
-          <button type="button" id="showForces" class="soloLayer active" aria-pressed="true" title="Individual force-plate measurements reconstructed from the C3D">Force plate vectors</button>
-          <button type="button" id="showBall" class="soloLayer" aria-pressed="false">Fake ball</button>
-        </div></details>
-      </div>
-      <div class="colorTools"><button type="button" id="showPowerMap" class="soloLayer" aria-pressed="false" hidden>Color skeleton</button>
-      <label id="powerModeWrap" class="powerModeControl" hidden><span>Metric</span><select id="powerMode" aria-label="Skeleton color metric"><optgroup label="Power and work"><option value="generated">Joint generation / absorption</option><option value="jfp">Joint-force transfer power</option><option value="stp">Segment-torque transfer power</option><option value="work">Net joint work since PKH</option><option value="endpoint">Segment-endpoint power</option></optgroup><optgroup label="Moments and motion"><option value="moment">Joint moment magnitude</option><option value="angular">Angular velocity magnitude</option><option value="hittingAngular">Joint angular speed</option><option value="jointSpeed">Joint-center linear speed</option></optgroup><optgroup label="Ground reaction force · processed"><option value="grf">Ground reaction force magnitude</option><option value="grfVertical">Vertical ground reaction force</option></optgroup></select></label></div>
-    </div>
-    <div class="transport">
-      <div class="transportTop">
-        <div class="transportButtons"><button id="playButton" class="playButton" type="button" aria-label="Play">▶</button><button id="stepBack" type="button" title="Previous frame" aria-label="Previous frame">◂</button><button id="stepForward" type="button" title="Next frame" aria-label="Next frame">▸</button><button id="loopButton" type="button" aria-pressed="false" title="Loop playback">↻ Loop</button></div>
-        <div class="transportClock"><strong id="timeText">0.000 / 0.000 s</strong><select id="playSpeed" aria-label="Replay speed"><option value="0.1">0.1×</option><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="0.75">0.75×</option><option value="1" selected>1×</option></select></div>
-      </div>
-      <div class="timelineBlock"><div id="scrub" class="scrub"><div id="scrubFill" class="scrubFill"></div><div id="scrubEvents" class="scrubEvents"></div><input id="timeline" type="range" min="0" max="1" step="0.0001" value="0" aria-label="Scrub replay time"><button id="eventPopup" class="eventPopup" type="button" hidden><span id="eventPopupName"></span><time id="eventPopupTime"></time></button></div></div>
-    </div>
-    <section class="analysis">
-      <header class="analysisTop"><h2>Time series</h2><div class="chartOptions"><button id="chartOptionsButton" type="button" aria-expanded="false" aria-controls="chartOptionsPanel">Chart options</button><div id="chartOptionsPanel" class="chartOptionsPanel" hidden><label>Time axis<select id="chartTimeMode"><option value="recording">Recording time · seconds</option><option value="event">Relative to release / contact · ms</option><option value="phase">Foot contact to release / contact · %</option></select></label><div class="chartRange"><strong>X-axis window</strong><div class="chartRangeFields"><label>From<select id="chartRangeMin" aria-label="Chart window start"></select><input id="chartRangeMinCustom" type="number" step="0.001" inputmode="decimal" aria-label="Custom chart start in recording seconds" placeholder="Seconds" hidden></label><label>To<select id="chartRangeMax" aria-label="Chart window end"></select><input id="chartRangeMaxCustom" type="number" step="0.001" inputmode="decimal" aria-label="Custom chart end in recording seconds" placeholder="Seconds" hidden></label></div><div class="chartRangeActions"><button id="applyChartRange" type="button">Apply window</button><button id="resetChartRange" type="button">Reset range</button></div><p id="chartRangeFeedback" role="status" hidden></p></div><div class="comparisonButtons"><button id="pinReference" type="button">Compare with this trial</button><button id="clearReference" type="button" disabled>Clear comparison</button></div><p id="referenceStatus" class="caption" hidden></p></div></div></header>
-      <p id="chartWindowStatus" class="caption" role="status" hidden></p>
-      <section class="chartSection keyCharts"><div class="chartSectionHead"><h3>Key charts</h3><div class="keyChartActions"><button id="resetCharts" type="button">Reset</button><button id="jumpToSources" type="button">Full data ↓</button></div></div><div id="chartGrid" class="chartGrid"></div></section>
-      <details id="sourceCharts" class="chartSection sourceCharts"><summary class="sourceSummary"><span class="sourceSummaryIcon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="11" cy="18" r="1.5" fill="currentColor" stroke="none"/></svg></span><span class="sourceSummaryText"><strong>Full Set of Time Series Data</strong></span><span id="sourceToggleLabel" class="sourceToggleLabel">Expand</span><svg class="sourceChevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m5 7 5 5 5-5"/></svg></summary><div class="sourceBody"><nav id="chartTabs" class="chartTabs" role="tablist" aria-label="Signal source"></nav><div class="sourceToolbar"><span id="chartCount"></span><input id="chartSearch" type="search" placeholder="Filter this source" aria-label="Filter plots in selected source"></div><div id="sourceGrid" class="chartGrid"></div></div></details>
-    </section>
-  </section>
-  <aside id="inspector" class="inspector" aria-label="Pitch details"><div class="inspectorHead"><div class="paneTitle"><h2 id="detailsTitle">Pitch Details</h2></div><button id="toggleRight" class="paneToggle" type="button" aria-label="Collapse details" title="Collapse details">Hide ›</button></div><div id="hpInspector" class="hpInspector" hidden></div><div id="compareInspector" class="compareInspector" hidden></div><div class="inspectorScroll">
-    <section id="keypointDefinition" class="readout keypointDefinition" hidden></section>
-    <section class="readout"><h3>Trial summary</h3><p id="dataCoverage" class="dataCoverage"></p><div id="featured" class="featured"></div></section>
-    <details id="limbLengthsSection" class="readout readoutDisclosure limbDisclosure"><summary>Limb lengths <span>Estimates</span></summary><div id="limbLengthsBody" class="disclosureBody limbBody"></div></details>
-    <section id="hittraxSummary" class="readout hittraxSummary" hidden><h3>Contact and outcome <span>HitTrax</span></h3><div id="hittraxSummaryBody"></div></section>
-    <section class="readout"><h3>At playhead <span id="readoutTime">0.000 s</span></h3><div id="liveMetrics" class="metricGrid"></div></section>
-    <details id="poiSection" class="readout readoutDisclosure"><summary>POI fields <span>Published trial summaries</span></summary><div class="disclosureBody"><input id="poiSearch" type="search" placeholder="Filter POI fields" aria-label="Filter POI fields"><div id="poi" class="kv"></div></div></details>
-    <details id="metadataSection" class="readout readoutDisclosure"><summary>Metadata</summary><div class="disclosureBody"><div id="metadata" class="kv"></div></div></details>
-    <details id="hittraxSection" class="readout readoutDisclosure"><summary>HitTrax</summary><div class="disclosureBody"><div id="hittrax" class="kv"></div></div></details>
-    <div id="pitchReport" class="pitchReport" hidden></div>
-  </div></aside>
-</main>
-<div id="toast" class="toast" role="status"></div>
-</body>
+        <section class="analysis">
+          <header class="analysisTop">
+            <h2>Time series</h2>
+            <div class="chartOptions">
+              <button
+                id="chartOptionsButton"
+                type="button"
+                aria-expanded="false"
+                aria-controls="chartOptionsPanel"
+              >
+                Chart options
+              </button>
+              <div id="chartOptionsPanel" class="chartOptionsPanel" hidden>
+                <label
+                  >Time axis<select id="chartTimeMode">
+                    <option value="recording">Recording time · seconds</option>
+                    <option value="event">
+                      Relative to release / contact · ms
+                    </option>
+                    <option value="phase">
+                      Foot contact to release / contact · %
+                    </option>
+                  </select></label
+                >
+                <div class="chartRange">
+                  <strong>X-axis window</strong>
+                  <div class="chartRangeFields">
+                    <label
+                      >From<select
+                        id="chartRangeMin"
+                        aria-label="Chart window start"
+                      ></select
+                      ><input
+                        id="chartRangeMinCustom"
+                        type="number"
+                        step="0.001"
+                        inputmode="decimal"
+                        aria-label="Custom chart start in recording seconds"
+                        placeholder="Seconds"
+                        hidden /></label
+                    ><label
+                      >To<select
+                        id="chartRangeMax"
+                        aria-label="Chart window end"
+                      ></select
+                      ><input
+                        id="chartRangeMaxCustom"
+                        type="number"
+                        step="0.001"
+                        inputmode="decimal"
+                        aria-label="Custom chart end in recording seconds"
+                        placeholder="Seconds"
+                        hidden
+                    /></label>
+                  </div>
+                  <div class="chartRangeActions">
+                    <button id="applyChartRange" type="button">
+                      Apply window</button
+                    ><button id="resetChartRange" type="button">
+                      Reset range
+                    </button>
+                  </div>
+                  <p id="chartRangeFeedback" role="status" hidden></p>
+                </div>
+                <div class="comparisonButtons">
+                  <button id="pinReference" type="button">
+                    Compare with this trial</button
+                  ><button id="clearReference" type="button" disabled>
+                    Clear comparison
+                  </button>
+                </div>
+                <p id="referenceStatus" class="caption" hidden></p>
+              </div>
+            </div>
+          </header>
+          <p id="chartWindowStatus" class="caption" role="status" hidden></p>
+          <section class="chartSection keyCharts">
+            <div class="chartSectionHead">
+              <h3>Key charts</h3>
+              <div class="keyChartActions">
+                <button id="resetCharts" type="button">Reset</button
+                ><button id="jumpToSources" type="button">Full data ↓</button>
+              </div>
+            </div>
+            <div id="chartGrid" class="chartGrid"></div>
+          </section>
+          <details id="sourceCharts" class="chartSection sourceCharts">
+            <summary class="sourceSummary">
+              <span class="sourceSummaryIcon" aria-hidden="true"
+                ><svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  stroke-linecap="round"
+                >
+                  <path d="M4 6h16M4 12h16M4 18h16" />
+                  <circle
+                    cx="8"
+                    cy="6"
+                    r="1.5"
+                    fill="currentColor"
+                    stroke="none"
+                  />
+                  <circle
+                    cx="15"
+                    cy="12"
+                    r="1.5"
+                    fill="currentColor"
+                    stroke="none"
+                  />
+                  <circle
+                    cx="11"
+                    cy="18"
+                    r="1.5"
+                    fill="currentColor"
+                    stroke="none"
+                  /></svg></span
+              ><span class="sourceSummaryText"
+                ><strong>Full Set of Time Series Data</strong></span
+              ><span id="sourceToggleLabel" class="sourceToggleLabel"
+                >Expand</span
+              ><svg
+                class="sourceChevron"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path d="m5 7 5 5 5-5" />
+              </svg>
+            </summary>
+            <div class="sourceBody">
+              <nav
+                id="chartTabs"
+                class="chartTabs"
+                role="tablist"
+                aria-label="Signal source"
+              ></nav>
+              <div class="sourceToolbar">
+                <span id="chartCount"></span
+                ><input
+                  id="chartSearch"
+                  type="search"
+                  placeholder="Filter this source"
+                  aria-label="Filter plots in selected source"
+                />
+              </div>
+              <div id="sourceGrid" class="chartGrid"></div>
+            </div>
+          </details>
+        </section>
+      </section>
+      <aside id="inspector" class="inspector" aria-label="Pitch details">
+        <div class="inspectorHead">
+          <div class="paneTitle"><h2 id="detailsTitle">Pitch Details</h2></div>
+          <button
+            id="toggleRight"
+            class="paneToggle"
+            type="button"
+            aria-label="Collapse details"
+            title="Collapse details"
+          >
+            Hide ›
+          </button>
+        </div>
+        <div id="hpInspector" class="hpInspector" hidden></div>
+        <div id="compareInspector" class="compareInspector" hidden></div>
+        <div class="inspectorScroll">
+          <section
+            id="keypointDefinition"
+            class="readout keypointDefinition"
+            hidden
+          ></section>
+          <section class="readout">
+            <h3>Trial summary</h3>
+            <p id="dataCoverage" class="dataCoverage"></p>
+            <div id="featured" class="featured"></div>
+          </section>
+          <details
+            id="limbLengthsSection"
+            class="readout readoutDisclosure limbDisclosure"
+          >
+            <summary>Limb lengths <span>Estimates</span></summary>
+            <div id="limbLengthsBody" class="disclosureBody limbBody"></div>
+          </details>
+          <section id="hittraxSummary" class="readout hittraxSummary" hidden>
+            <h3>Contact and outcome <span>HitTrax</span></h3>
+            <div id="hittraxSummaryBody"></div>
+          </section>
+          <section class="readout">
+            <h3>At playhead <span id="readoutTime">0.000 s</span></h3>
+            <div id="liveMetrics" class="metricGrid"></div>
+          </section>
+          <details id="poiSection" class="readout readoutDisclosure">
+            <summary>POI fields <span>Published trial summaries</span></summary>
+            <div class="disclosureBody">
+              <input
+                id="poiSearch"
+                type="search"
+                placeholder="Filter POI fields"
+                aria-label="Filter POI fields"
+              />
+              <div id="poi" class="kv"></div>
+            </div>
+          </details>
+          <details id="metadataSection" class="readout readoutDisclosure">
+            <summary>Metadata</summary>
+            <div class="disclosureBody">
+              <div id="metadata" class="kv"></div>
+            </div>
+          </details>
+          <details id="hittraxSection" class="readout readoutDisclosure">
+            <summary>HitTrax</summary>
+            <div class="disclosureBody">
+              <div id="hittrax" class="kv"></div>
+            </div>
+          </details>
+          <div id="pitchReport" class="pitchReport" hidden></div>
+        </div>
+      </aside>
+    </main>
+    <div id="toast" class="toast" role="status"></div>
+  </body>
 </html>

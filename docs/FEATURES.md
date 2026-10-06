@@ -24,10 +24,12 @@ Assessment browser, athlete profiles/history, test availability, full metric sel
 | `energy_overlay.js`, `motion_*.js`, `focus_geometry.js`, `*_scale.js` | Spatial guides, overlays and visual scales |
 | `high_performance.js`, `hittrax.js`, `limb_lengths.js`, `cohort_band.js` | Assessment and derived-data features |
 | `video_jobs.py`, `render_movie.cjs`, `movie_*.js` | Export queue, headless rendering and encoding |
-| `build_high_performance.py`, `build_cohorts.py`, `build_cohorts.mjs` | Generated browser data |
+| `build_high_performance.py`, `build_cohorts.py`, `build_cohorts.mjs`, `build_limb_lengths.py` | Generated browser data |
 | `vendor/`, `assets/fonts/` | Local Three.js and fonts with third-party licenses |
 
 ## Boundaries
 This is a local desktop dashboard, not an authenticated multi-user service. It reads an independent upstream checkout and downloaded/extracted release assets through `OBM_DATA_ROOT`. Source positions, published signals, summary metrics and dashboard calculations remain distinct; visual mappings are not new biomechanical measurements.
 
 The original workspace contained successive copies and one-off installers. `dashboard/` is the active installed version; historical workspaces are excluded from this contribution snapshot. Generated cohort, limb-length and assessment JSON files are local data, not committed source. `docs/baseline-sha256.json` records hashes of the copied active source.
+
+See [the cleanup audit](CLEANUP.md) for verification results and preserved scientific behavior.

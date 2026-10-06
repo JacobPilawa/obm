@@ -1,0 +1,7 @@
+dashboard/vendor/
+dashboard/cache/
+dashboard/data/
+node_modules/
+local_archive/
+.venv/
+tests/results/

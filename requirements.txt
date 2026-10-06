@@ -1,0 +1,5 @@
+# Core replay server; Python 3.10+.
+ezc3d>=1.7.0,<2
+numpy>=1.26,<3
+# Used only by the limb-length data builder.
+pandas>=2.2,<4

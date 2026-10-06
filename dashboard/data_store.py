@@ -13,16 +13,16 @@ import math
 import os
 import re
 import struct
-from collections import Counter, defaultdict, OrderedDict
+from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
-from threading import Lock
+from memo_cache import MemoCache
 
 import ezc3d
 import numpy as np
 
 APP_DIR = Path(__file__).resolve().parent
-REPO_DIR = Path(os.environ.get("OBM_DATA_ROOT", APP_DIR.parent / "openbiomechanics"))
+REPO_DIR = Path(os.environ.get("OBM_DATA_ROOT", APP_DIR.parent / "openbiomechanics")).expanduser().resolve()
 CACHE_DIR = APP_DIR / "cache"
 INDEX_PATH = CACHE_DIR / "csv_spans.json"
 CATALOG_PATH = CACHE_DIR / "catalog.json"
@@ -303,8 +303,7 @@ class DataStore:
         if not self._load_catalog_cache():
             self._build_catalog()
             self._save_catalog_cache()
-        self._trial_cache: OrderedDict[str, dict[str, Any]] = OrderedDict()
-        self._cache_lock = Lock()
+        self._trial_cache = MemoCache(max_entries=6)
 
     def _load_catalog_cache(self) -> bool:
         try:
@@ -524,10 +523,9 @@ class DataStore:
         }
 
     def trial(self, identity: str) -> dict[str, Any]:
-        with self._cache_lock:
-            if identity in self._trial_cache:
-                self._trial_cache.move_to_end(identity)
-                return self._trial_cache[identity]
+        return self._trial_cache.get(identity, lambda: self._load_trial(identity))
+
+    def _load_trial(self, identity: str) -> dict[str, Any]:
         record = self.entries.get(identity)
         if record is None:
             raise KeyError(f"Unknown trial ID {identity!r}")
@@ -567,10 +565,4 @@ class DataStore:
             "coordinate_system": self.catalog()["coordinate_systems"][kind],
             "timeline_note": "C3D frame zero and processed full-signal time zero align; force and analog data retain their native 1,080 Hz timestamps.",
         }
-        with self._cache_lock:
-            self._trial_cache[identity] = result
-            self._trial_cache.move_to_end(identity)
-            # Four comparison replays plus room for solo navigation/export.
-            while len(self._trial_cache) > 6:
-                self._trial_cache.popitem(last=False)
         return result
