@@ -51,6 +51,7 @@ npm run test:browser
 npm run test:numerics
 npm run test:regressions
 npm run test:bones
+npm run test:planes
 ```
 
 Set `OBM_TEST_URL` for another test port. Browser/export checks require the downloaded release data, generated JSON, Chromium/Chrome, and ffmpeg/ffprobe. Test outputs stay in ignored `tests/results/`. `npm run format` formats owned web source; vendored libraries remain unchanged.

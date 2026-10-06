@@ -237,3 +237,5 @@ Hitter replays use Poly Haven's CC0 wooden baseball bat with a tapered barrel, k
 **Trunk axis · geometric guide** holds its first/last landmark pose when the playhead falls outside the recording's processed sample range, including aligned comparison timelines. It therefore stays visible at the beginning and end while the body is held there. Missing samples inside the recording still hide the affected guide. Signal values and charts retain their native coverage and missing values.
 
 With **Anatomical bones** enabled, hitters' fingers curl around the bat in an **illustrative grip pose**. Wrists and hands follow released motion; individual finger angles are assumed because the data does not track fingers. Both hands, handednesses, comparisons and MP4 exports use the same display treatment. Pitcher hands retain the original bone atlas pose.
+
+Plane views stay fixed on XY, YZ, and XZ throughout playback. Their frame fits the full selected motion, including the display skull, feet, and bat. Changing recordings or comparison alignment fits a new frame. Plane views have no separate controls.

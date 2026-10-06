@@ -1,3 +1,4 @@
+import { motionBounds, planeFrame } from "./plane_framing.js";
 import { BaseballBat } from "./baseball_bat.js";
 import { AnatomicalBody, ensureBoneAssets } from "./anatomical_body.js";
 import {
@@ -298,6 +299,8 @@ let movieSpeed = 1,
   movieShowInfoBoxes = false,
   movieKeypointCharts = [];
 let planeCameras = [];
+let planeFrameKey = "",
+  planeMotionBounds = null;
 let sceneReady = false,
   fallbackCanvas = null,
   soloForceMax = 0,
@@ -395,11 +398,16 @@ function setupScene() {
       100,
     );
     view.up.set(0, ...(plane === "xy" ? [1, 0] : [0, 1]));
-    return {
+    const element = document.querySelector(`[data-plane="${plane}"]`);
+    const pane = {
       plane,
       camera: view,
-      element: document.querySelector(`[data-plane="${plane}"]`),
+      element,
+      target: new THREE.Vector3(),
+      halfHeight: halfSpan,
+      aspect: 0,
     };
+    return pane;
   });
   new ResizeObserver(() => {
     const w = $("stage").clientWidth,
@@ -1550,106 +1558,93 @@ function updateTimeline() {
   keypointExplorer?.updateTime(time);
   updateCharts(time);
 }
-function posePoints(data, t) {
-  const processed = data.signals?.landmarks,
-    body = processed ? PAIRS[data.entry.discipline] : RAW_PAIRS;
-  const names = new Set(body.flat());
-  if (data.entry.discipline === "hitting")
-    for (const name of processed
-      ? ["blast_hand", "sweet_spot"]
-      : ["Marker1", "Marker3"])
-      names.add(name);
-  if (processed) {
-    const i = nearestIndex(processed.time, t),
-      series = processed.series;
-    return [...names]
-      .map((name) =>
-        ["x", "y", "z"].map((axis) => series[name + "_" + axis]?.[i]),
-      )
-      .filter(finite);
-  }
-  const motion = data.motion;
-  if (!motion?.frames?.length) return [];
-  const frame =
-    motion.frames[
-      Math.min(
-        motion.frames.length - 1,
-        Math.max(0, Math.round(t * motion.rate)),
-      )
-    ];
-  return [...names]
-    .map((name) => frame?.[motion.labels.indexOf(name)])
-    .filter(finite);
+function planeRecords() {
+  return (
+    compareMode
+      ? compareEntries.map((entry) => ({
+          data: entry.data,
+          range:
+            compareViewer.parts.get(entry.id)?.poseRange || entry.poseRange,
+          shift: compareViewer.parts
+            .get(entry.id)
+            ?.group.position.toArray() || [0, 0, 0],
+        }))
+      : trial
+        ? [{ data: trial }]
+        : []
+  ).map((record) => ({
+    ...record,
+    names: [
+      ...new Set(
+        (record.data.signals?.landmarks
+          ? PAIRS[record.data.entry.discipline]
+          : RAW_PAIRS
+        ).flat(),
+      ),
+    ],
+  }));
 }
-function planeViewPoints() {
-  if (!trial) return [];
-  if (!compareMode) return posePoints(trial, time);
-  return compareEntries.flatMap((entry) => {
-    const part = compareViewer?.parts.get(entry.id),
-      data = entry.data;
-    const local = alignedTime(time, trial, data, compareSync),
-      range = part?.poseRange || entry.poseRange;
-    const t = Math.max(
-      range.start,
-      Math.min(range.end, Math.max(0, Math.min(data.duration, local))),
+function updatePlaneProjection(view) {
+  const rect = view.element.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+  const aspect = rect.width / rect.height;
+  if (view.aspect === aspect) return;
+  view.aspect = aspect;
+  view.camera.left = -view.halfHeight * aspect;
+  view.camera.right = view.halfHeight * aspect;
+  view.camera.top = view.halfHeight;
+  view.camera.bottom = -view.halfHeight;
+  view.camera.updateProjectionMatrix();
+}
+function fitPlaneCamera(view) {
+  const rect = view.element.getBoundingClientRect();
+  const frame = planeFrame(
+    planeMotionBounds,
+    view.plane,
+    rect.width / rect.height || 1,
+  );
+  view.halfHeight = frame.halfHeight;
+  view.aspect = 0;
+  view.camera.zoom = 1;
+  view.camera.up.set(0, ...(view.plane === "xy" ? [1, 0] : [0, 1]));
+  view.target.fromArray(frame.target);
+  view.camera.position
+    .copy(view.target)
+    .add(
+      view.plane === "xy"
+        ? new THREE.Vector3(0, 0, 6)
+        : view.plane === "yz"
+          ? new THREE.Vector3(6, 0, 0)
+          : new THREE.Vector3(0, -6, 0),
     );
-    const shift = part?.group.position || new THREE.Vector3();
-    return posePoints(data, t).map((p) => [
-      p[0] + shift.x,
-      p[1] + shift.y,
-      p[2] + shift.z,
-    ]);
-  });
+  updatePlaneProjection(view);
+  view.camera.lookAt(view.target);
+  view.camera.updateMatrixWorld();
+}
+function ensurePlaneFrames() {
+  const records = planeRecords();
+  const key = JSON.stringify([
+    loadSerial,
+    compareMode,
+    records.map((record) => [record.data.entry.id, record.shift, record.range]),
+  ]);
+  if (planeMotionBounds && key === planeFrameKey) return;
+  planeFrameKey = key;
+  planeMotionBounds = motionBounds(records);
+  for (const view of planeCameras) fitPlaneCamera(view);
 }
 function renderPlaneViews() {
   if ($("planeViews").hidden) return;
   const canvasRect = renderer.domElement.getBoundingClientRect();
   if (!canvasRect.width || !canvasRect.height) return;
-  const points = planeViewPoints(),
-    axes = { xy: [0, 1], yz: [1, 2], xz: [0, 2] },
-    offset = 6;
-  const mins = [0, 1, 2].map((axis) =>
-    points.length
-      ? Math.min(...points.map((p) => p[axis]))
-      : defaultCameraTarget.getComponent(axis),
-  );
-  const maxs = [0, 1, 2].map((axis) =>
-    points.length
-      ? Math.max(...points.map((p) => p[axis]))
-      : defaultCameraTarget.getComponent(axis),
-  );
-  const target = new THREE.Vector3(
-    ...mins.map((value, i) => (value + maxs[i]) / 2),
-  );
+  ensurePlaneFrames();
   renderer.setScissorTest(true);
   try {
     for (const view of planeCameras) {
-      const [a, b] = axes[view.plane],
-        halfSpan =
-          Math.max(
-            1.95,
-            (maxs[a] - mins[a]) * 1.16,
-            (maxs[b] - mins[b]) * 1.16,
-          ) / 2;
-      view.camera.left = -halfSpan;
-      view.camera.right = halfSpan;
-      view.camera.top = halfSpan;
-      view.camera.bottom = -halfSpan;
-      view.camera.updateProjectionMatrix();
+      updatePlaneProjection(view);
       const rect = view.element.getBoundingClientRect(),
         x = rect.left - canvasRect.left,
         y = canvasRect.bottom - rect.bottom;
-      view.camera.position
-        .copy(target)
-        .add(
-          view.plane === "xy"
-            ? new THREE.Vector3(0, 0, offset)
-            : view.plane === "yz"
-              ? new THREE.Vector3(offset, 0, 0)
-              : new THREE.Vector3(0, -offset, 0),
-        );
-      view.camera.lookAt(target);
-      view.camera.updateMatrixWorld();
       renderer.setViewport(x, y, rect.width, rect.height);
       renderer.setScissor(x, y, rect.width, rect.height);
       renderer.render(scene, view.camera);

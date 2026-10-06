@@ -14,7 +14,8 @@
     "format:check": "node node_modules/prettier/bin/prettier.cjs --check *.{js,mjs,cjs,css,html} tests/*.{mjs,cjs}",
     "test:regressions": "node tests/regressions.cjs",
     "test:bones": "node tests/bones.cjs",
-    "test:bat-axis": "node tests/bat_axis.cjs"
+    "test:bat-axis": "node tests/bat_axis.cjs",
+    "test:planes": "node tests/plane_views.cjs"
   },
   "dependencies": {
     "playwright": "1.62.1"
