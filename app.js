@@ -1,3 +1,4 @@
+import { BaseballBat } from "./baseball_bat.js";
 import { AnatomicalBody, ensureBoneAssets } from "./anatomical_body.js";
 import {
   initCohortControls,
@@ -442,7 +443,7 @@ function clearGroup(group) {
       for (const m of Array.isArray(node.material)
         ? node.material
         : [node.material]) {
-        m?.map?.dispose?.();
+        if (!m?.map?.userData.staticModelTexture) m?.map?.dispose?.();
         m?.dispose?.();
       }
     });
@@ -697,6 +698,7 @@ function updateArmSweep() {
 }
 function buildDynamic() {
   anatomicalBody?.dispose();
+  batMesh?.dispose();
   anatomicalBody = null;
   clearGroup(dynamic);
   soloMotionVisuals = trial ? new MotionVisuals(dynamic, trial) : null;
@@ -877,12 +879,8 @@ function buildDynamic() {
   focusArc.visible = false;
   focusArc.renderOrder = 8;
   dynamic.add(focusArc);
-  batMesh = addMesh(
-    dynamic,
-    new THREE.CylinderGeometry(0.025, 0.025, 1, 10),
-    new THREE.MeshStandardMaterial({ color: "#9e7043", roughness: 0.75 }),
-  );
-  batMesh.visible = false;
+  batMesh = new BaseballBat(trial);
+  dynamic.add(batMesh);
   batSpeedPoint = addMesh(
     dynamic,
     new THREE.SphereGeometry(0.034, 14, 10),
@@ -1253,19 +1251,7 @@ function updateMotion() {
       a = rawMap.Marker1 || rawMap.Marker2;
       b = rawMap.Marker3 || rawMap.Marker4;
     }
-    if (finite(a) && finite(b)) {
-      const d = vec(b).sub(vec(a)),
-        length = d.length();
-      if (length > 0.001) {
-        batMesh.visible = true;
-        batMesh.position.copy(vec(a).add(vec(b)).multiplyScalar(0.5));
-        batMesh.scale.set(1, length, 1);
-        batMesh.quaternion.setFromUnitVectors(
-          new THREE.Vector3(0, 1, 0),
-          d.normalize(),
-        );
-      }
-    }
+    batMesh.update(a, b);
   }
   batSpeedPoint.visible =
     trial.entry.discipline === "hitting" &&
@@ -2042,6 +2028,10 @@ window.__prepareMovie = async (state) => {
       .filter((part) => part.entry.options.bones)
       .map((part) => part.anatomy.load()),
   );
+  await Promise.all([
+    batMesh?.load(),
+    ...[...compareViewer.parts.values()].map((part) => part.bat.load()),
+  ]);
   configureCohort(state.cohort);
   if (state.cohort?.enabled)
     await Promise.all([
@@ -3458,6 +3448,8 @@ function focusGeometry(which) {
 }
 function bindControls() {
   window.addEventListener("obm-bones-ready", updateTimeline);
+  window.addEventListener("obm-bat-ready", updateTimeline);
+  window.addEventListener("obm-bat-error", (event) => toast(event.detail));
   window.addEventListener("obm-bones-error", (event) => toast(event.detail));
   for (const event of ["click", "input", "pointermove", "keydown"])
     document.addEventListener(event, invalidateViewer, {

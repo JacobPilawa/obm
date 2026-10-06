@@ -1,3 +1,4 @@
+import { BaseballBat } from "./baseball_bat.js";
 import { AnatomicalBody } from "./anatomical_body.js";
 import { MotionVisuals } from "./motion_visuals.js";
 import * as THREE from "three";
@@ -88,18 +89,6 @@ function setCylinder(mesh, i, a, b, r) {
   dummy.updateMatrix();
   mesh.setMatrixAt(i, dummy.matrix);
 }
-function setBat(mesh, a, b) {
-  const direction = vector(b).sub(vector(a)),
-    length = direction.length();
-  if (length < 0.001) return false;
-  mesh.position.copy(vector(a).add(vector(b)).multiplyScalar(0.5));
-  mesh.quaternion.setFromUnitVectors(
-    new THREE.Vector3(0, 1, 0),
-    direction.normalize(),
-  );
-  mesh.scale.set(1, length, 1);
-  return true;
-}
 function setDots(mesh, names, map) {
   names.forEach((name, i) => {
     const p = map[name];
@@ -160,7 +149,7 @@ function dispose(group) {
       for (const mat of Array.isArray(node.material)
         ? node.material
         : [node.material]) {
-        mat?.map?.dispose?.();
+        if (!mat?.map?.userData.staticModelTexture) mat?.map?.dispose?.();
         mat?.dispose?.();
       }
     });
@@ -272,7 +261,10 @@ export class CompareViewer {
     this.forceMax = 0;
   }
   setEntries(entries) {
-    for (const part of this.parts.values()) part.anatomy.dispose();
+    for (const part of this.parts.values()) {
+      part.anatomy.dispose();
+      part.bat.dispose();
+    }
     dispose(this.root);
     this.parts.clear();
     this.entries = entries;
@@ -403,10 +395,7 @@ export class CompareViewer {
         new THREE.MeshBasicMaterial({ color: color.trail }),
       );
       group.add(knot);
-      const bat = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.02, 0.02, 1, 9),
-        new THREE.MeshStandardMaterial({ color: color.body, roughness: 0.72 }),
-      );
+      const bat = new BaseballBat(data);
       group.add(bat);
       const speedPoint = new THREE.Mesh(
         new THREE.SphereGeometry(0.034, 12, 8),
@@ -847,10 +836,13 @@ export class CompareViewer {
         opts.eventPoint !== false && valid(eventPoint) && sourceTime >= event;
       if (knot.visible) knot.position.set(...eventPoint);
       bat.visible = false;
-      if ((opts.thick || opts.thin) && data.entry.discipline === "hitting") {
+      if (
+        (opts.thick || opts.thin || opts.bones) &&
+        data.entry.discipline === "hitting"
+      ) {
         const a = point(data, processed ? "blast_hand" : "Marker1", t),
           b = point(data, processed ? "sweet_spot" : "Marker3", t);
-        if (valid(a) && valid(b)) bat.visible = setBat(bat, a, b);
+        bat.update(a, b);
       }
       speedPoint.visible =
         processed && data.entry.discipline === "hitting" && bat.visible;
@@ -948,7 +940,10 @@ export class CompareViewer {
     return focused;
   }
   clear() {
-    for (const part of this.parts.values()) part.anatomy.dispose();
+    for (const part of this.parts.values()) {
+      part.anatomy.dispose();
+      part.bat.dispose();
+    }
     dispose(this.root);
     this.parts.clear();
     this.entries = [];

@@ -159,9 +159,9 @@ export class MotionVisuals {
     for (const x of [this.axis, this.vertical, this.leg, this.arc, this.force])
       x.visible = false;
     for (const name of ["braking", "knee"]) this.labels[name].set("", null);
-    if (options.axis && s.axis) {
-      const axis = s.axis,
-        top = axis.shoulders.map((x, i) => x + axis.direction[i] * 0.38);
+    const axis = options.axis ? a.axisGuideAt(t) : null;
+    if (axis) {
+      const top = axis.shoulders.map((x, i) => x + axis.direction[i] * 0.38);
       segments(this.axis, [[axis.floor || axis.origin, top]]);
       segments(this.vertical, [
         [

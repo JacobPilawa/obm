@@ -83,6 +83,11 @@ export function motionAnalysis(trial) {
     table?.series[key]
       ? sample({ time: table.time, values: table.series[key] }, t)
       : null;
+  const axisAt = (t) =>
+    trunkAxis(
+      midpoint(...hipNames.map((n) => at(n, t))),
+      midpoint(...shoulderNames.map((n) => at(n, t))),
+    );
   const result = {
     time,
     com,
@@ -95,11 +100,15 @@ export function motionAnalysis(trial) {
       knee: !!knee && names.every(has),
     },
     point: at,
+    axisGuideAt(t) {
+      // Display follows the endpoint pose outside source coverage (including
+      // aligned comparison timelines). Interior missing samples remain missing.
+      return time.length && Number.isFinite(t)
+        ? axisAt(Math.max(time[0], Math.min(time.at(-1), t)))
+        : null;
+    },
     at(t) {
-      const axis = trunkAxis(
-          midpoint(...hipNames.map((n) => at(n, t))),
-          midpoint(...shoulderNames.map((n) => at(n, t))),
-        ),
+      const axis = axisAt(t),
         rawForce = scalar(force, "lead_force_x", t),
         labForce = leadForceLabX(trial.entry.discipline, rawForce),
         speed = sample({ time, values: vx }, t),

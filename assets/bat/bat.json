@@ -1,0 +1,67 @@
+{
+  "source": "https://polyhaven.com/a/baseball_bat",
+  "author": "Enrique Mart\u00edn / Poly Haven",
+  "license": "CC0-1.0",
+  "sourceLengthMeters": 0.9131987690925598,
+  "triangles": 2672,
+  "modifications": "Converted glTF attributes to compact buffers, normalized length and coordinates; textures unchanged at 1K.",
+  "sources": [
+    {
+      "file": "bat.gltf",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/baseball_bat/baseball_bat_1k.gltf",
+      "sha256": "a55e57c03f986a82713c4751e6e6372d39b5f25eee9bbd31576b62bbebe0fa59"
+    },
+    {
+      "file": "baseball_bat.bin",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/baseball_bat/baseball_bat.bin",
+      "sha256": "884a4120d81c38e9370861f21c36a6fb3e53ad0d72eb0833ce9f9b9853e5199b"
+    },
+    {
+      "file": "baseball_bat_diff_1k.jpg",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/baseball_bat/baseball_bat_diff_1k.jpg",
+      "sha256": "b542dc267c1b6abf8fcc3e864976be0269baaff2c00d1c98e58a60631ab6559a"
+    },
+    {
+      "file": "baseball_bat_nor_gl_1k.jpg",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/baseball_bat/baseball_bat_nor_gl_1k.jpg",
+      "sha256": "1fc254147dc4caca617e7d92b526820b5cb4a299e9d4f254e71565814cc44337"
+    },
+    {
+      "file": "baseball_bat_arm_1k.jpg",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/baseball_bat/baseball_bat_arm_1k.jpg",
+      "sha256": "717489c7ca0fd799e87964ac685f43e94bc790199251f83b1ebb421b81531f08"
+    }
+  ],
+  "meshSha256": "c045601ed643a62d6330d9b30f417768a0c1e5b89200e56949dd43d93943a560",
+  "attributes": {
+    "position": {
+      "offset": 0,
+      "count": 1813,
+      "components": 3,
+      "type": "Float32"
+    },
+    "normal": {
+      "offset": 21756,
+      "count": 1813,
+      "components": 3,
+      "type": "Float32"
+    },
+    "uv": {
+      "offset": 43512,
+      "count": 1813,
+      "components": 2,
+      "type": "Float32"
+    },
+    "index": {
+      "offset": 58016,
+      "count": 8016,
+      "components": 1,
+      "type": "Uint16"
+    }
+  },
+  "textures": {
+    "diffuse": "diffuse.jpg",
+    "normal": "normal.jpg",
+    "arm": "arm.jpg"
+  }
+}
