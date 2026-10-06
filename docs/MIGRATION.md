@@ -8,4 +8,13 @@ The prior external-drive application was moved intact to `/Volumes/Elements/biom
 
 The original local workspace now contains a redirect and archived material, rather than a second working source tree. Its Git pointer resolves to this external-drive repository. Earlier experiments and the old local repository metadata are retained in the local archive. GitHub remains the backup/history for the contribution source; environments, data, cache and archives remain excluded.
 
-Migration verification includes real data/catalog endpoints, the browser/numerical regression suites, Full body settings and a background MP4 export from the new location. Sidebar cache/performance changes are described in `SELECTION_SPEED.md`.
+Migration verification includes real data/catalog endpoints, the browser/numerical regression suites, Full body settings and a background MP4 export from the new location. The sidebar selection path matches the reviewed cleanup version (`53c8c7c`); subsequent browser preloading, parsed-trial retention and derived-signal caching were reverted at the user’s request.
+
+
+Verified on October 6, 2026:
+
+- All 65 recorded original-application hashes match the archived files; all tracked source files and reachable Git history were verified during transfer.
+- The default dataset resolves to `/Volumes/Elements/biomech/openbiomechanics`, with 1,303 catalog entries. No dataset files were modified.
+- Three numerical unit tests and 11 Python tests passed. The 12 browser checks and eight-record real-data numerical audit passed.
+- Seven extended checks passed, including paused GPU behavior, rapid selection, cohort bands, Full body Match settings, export cancellation and a complete split-comparison movie with floating charts. The exported movie contained 78 H.264/yuv420p frames at 60 fps (320×240).
+- The review server runs from this external-drive application at `http://127.0.0.1:8773/` using `start_dashboard.command --port 8773`.

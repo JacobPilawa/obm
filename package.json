@@ -12,8 +12,7 @@
     "test:numerics": "node tests/numerics.mjs",
     "format": "node node_modules/prettier/bin/prettier.cjs --write *.{js,mjs,cjs,css,html} tests/*.{mjs,cjs}",
     "format:check": "node node_modules/prettier/bin/prettier.cjs --check *.{js,mjs,cjs,css,html} tests/*.{mjs,cjs}",
-    "test:regressions": "node tests/regressions.cjs",
-    "test:selection": "node tests/selection.cjs"
+    "test:regressions": "node tests/regressions.cjs"
   },
   "dependencies": {
     "playwright": "1.62.1"
