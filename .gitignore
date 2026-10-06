@@ -1,0 +1,99 @@
+# --- OS / editor cruft ---
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# --- R ---
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+.pytest_cache/
+.coverage
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+.venv/
+venv/
+env/
+
+# --- ML model weights (downloaded on demand, not committed) ---
+*.pt
+*.onnx
+
+# --- Large data & media (distributed via GitHub Releases, not git) ---
+# Raw motion capture
+baseball_pitching/data/c3d/
+baseball_hitting/data/c3d/
+*.c3d
+*.C3D
+# Processed full-signal archives and extracted tables
+baseball_pitching/data/full_sig/
+baseball_hitting/data/full_sig/
+# Computer-vision demo media
+*.mp4
+*.mov
+*.MOV
+*.avi
+# Third-party tool installers
+binaries/*.dmg
+binaries/*.zip
+*.dmg
+
+# --- Generated CV scratch dirs (keep the small .csv/.xml calibration outputs) ---
+computer_vision/**/debug_images/*
+!computer_vision/**/debug_images/.gitkeep
+computer_vision/**/multiprocessed_frames/*
+!computer_vision/**/multiprocessed_frames/.gitkeep
+computer_vision/**/figures/*
+!computer_vision/**/figures/.gitkeep
+
+# --- Generated example figures ---
+examples/figures/
+
+# --- Local agent workspace (not part of the project) ---
+brain/
+
+# Contributions repository: upstream checkout and generated dashboard data
+openbiomechanics/
+dashboard/data/*.json
+cache/
+node_modules/
+._*
+*.log
+*.tar.gz
+*.zip
+.env
+.env.*
+!.env.example
+local_archive/
+# Earlier agent workspaces; the active source is preserved in dashboard/
+/dashboard_audit/
+/dashboard_polish/
+/dashboard_revision/
+/dashboard_visuals/
+/bat_color_revision/
+/legend_columns/
+/legend_style/
+/legend_values/
+/match_full_body/
+/movie_legend/
+/toolbar_cleanup/
+/visible_axis/
+/velocity_audit/
+/velocity_revision/
+/gaussian_pitch/
+/deploy_*.py
+# Generated analysis output
+reproductions/**/*.png
+reproductions/**/*.pdf
+reproductions/**/*.csv

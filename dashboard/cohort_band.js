@@ -1,0 +1,16 @@
+// Pointwise athlete-weighted IQR, event-aligned in physical seconds.
+const listeners=new Set(),assets=new Map(),pending=new Map(),bandCache=new WeakMap();let current=null;
+let enabled=false,scope='level',version=0;
+export const cohortKey=(chart,label)=>`chart:${chart}:${label}`;
+export function cohortState(){return {enabled,scope,version}}
+export function onCohortChange(fn){listeners.add(fn);return ()=>listeners.delete(fn)}
+function notify(){version++;for(const fn of listeners)fn();status()}
+export function configureCohort(state){enabled=!!state?.enabled;scope=state?.scope==='all'?'all':'level';notify()}
+export async function loadCohort(trial){const kind=trial?.entry?.discipline;if(!['pitching','hitting'].includes(kind))return null;if(assets.has(kind))return assets.get(kind);if(!pending.has(kind))pending.set(kind,fetch(`/data/cohort_${kind}.json`).then(r=>{if(!r.ok)throw Error('Cohort data unavailable');return r.json()}).then(data=>{assets.set(kind,data);notify();return data}).catch(error=>{pending.delete(kind);const node=document.getElementById('cohortStatus');if(node)node.textContent=error.message;return null}));return pending.get(kind)}
+function groupFor(trial){const data=assets.get(trial?.entry?.discipline);return data?.cohorts?.[scope==='all'?'all':trial?.entry?.playing_level||'unknown']}
+export function bandFor(trial,key){if(!enabled)return null;const group=groupFor(trial),signal=group?.signals?.[key],anchor=trial?.events?.[trial?.entry?.discipline==='pitching'?'BR_time':'contact_time']?.time;if(!signal||!Number.isFinite(anchor))return null;let cache=bandCache.get(trial);if(!cache||cache.version!==version)bandCache.set(trial,cache={version,map:new Map()});if(!cache.map.has(key))cache.map.set(key,{...signal,time:assets.get(trial.entry.discipline).grid.map(t=>t+anchor),athletes:group.athletes,trials:group.trials,label:group.label});return cache.map.get(key)}
+export function paintBand(ctx,band,x,y,color,opacity=.12){if(!band)return;ctx.save();ctx.globalAlpha=opacity;ctx.fillStyle=color;let run=[];const flush=()=>{if(run.length<2){run=[];return}ctx.beginPath();run.forEach((i,j)=>(j?ctx.lineTo:ctx.moveTo).call(ctx,x(band.time[i]),y(band.high[i])));for(let j=run.length-1;j>=0;j--){const i=run[j];ctx.lineTo(x(band.time[i]),y(band.low[i]))}ctx.closePath();ctx.fill();run=[]};for(let i=0;i<band.time.length;i++){if(Number.isFinite(band.low[i])&&Number.isFinite(band.high[i]))run.push(i);else flush()}flush();ctx.restore()}
+function status(){const node=document.getElementById('cohortStatus');if(!node)return;const group=groupFor(current);node.textContent=enabled?(group?`${group.label} · ${group.athletes} athletes / ${group.trials} trials${group.athletes<5?' · insufficient peers (minimum 5)':' · 25–75% · release/contact aligned'}`:assets.has(current?.entry?.discipline)?'No matching processed peer cohort':'Loading peer bands…'):'Peer bands off';node.closest('.cohortTools').title=node.textContent;}
+export function initCohortControls(){const toggle=document.getElementById('cohortBands'),select=document.getElementById('cohortScope');toggle.addEventListener('click',()=>{enabled=!enabled;toggle.setAttribute('aria-pressed',String(enabled));notify()});select.addEventListener('change',()=>{scope=select.value;notify()});status()}
+
+export function setCohortTrial(trial){current=trial;if(enabled)loadCohort(trial);status()}

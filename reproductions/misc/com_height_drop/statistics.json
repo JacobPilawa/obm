@@ -1,0 +1,26 @@
+{
+  "definition": "max(centerofmass_z from recording start through BR) minus centerofmass_z at BR; metres converted to cm",
+  "release_sampling": "Linear interpolation of adjacent native samples only, no extrapolation or bridging missing values",
+  "results": {
+    "Pitcher averages": {
+      "n": 100,
+      "pearson_r": 0.1724487318052427,
+      "slope_mph_per_cm": 0.1276964007673207,
+      "intercept_mph": 79.65601078430413
+    },
+    "Individual pitches": {
+      "n": 411,
+      "pearson_r": 0.13595476287729802,
+      "slope_mph_per_cm": 0.09808234969285587,
+      "intercept_mph": 80.7814247687982
+    }
+  },
+  "excluded_trials": [],
+  "peak_at_recording_start_count": 1,
+  "trials_with_missing_prerelease_COM": 0,
+  "drop_cm_range": [
+    22.210000000000008,
+    56.45
+  ],
+  "note": "Repeated pitches are not independent. Pooled associations can reflect playing level and other confounders. COM height loss is not a direct measurement of energy transfer into the ball."
+}

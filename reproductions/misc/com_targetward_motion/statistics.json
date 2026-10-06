@@ -1,0 +1,197 @@
+{
+  "definition": "Maximum signed first and second derivative of centerofmass_x at sample centers from recording start to ball release.",
+  "derivative_method": "Centered cubic least-squares position fit using actual timestamps, nominal 50 ms window; missing windows/gaps and endpoint half-windows excluded. Fits near BR can use post-release samples.",
+  "results": {
+    "velocity": {
+      "Pitcher averages": {
+        "n": 100,
+        "pearson_r": 0.22481652861205106,
+        "slope_mph_per_x_unit": 4.415091432460088,
+        "intercept_mph": 71.38895268395677,
+        "peak_range": [
+          2.2722364145011875,
+          3.50628348693229
+        ]
+      },
+      "Individual pitches": {
+        "n": 411,
+        "pearson_r": 0.200763035249231,
+        "slope_mph_per_x_unit": 3.7456240871012727,
+        "intercept_mph": 73.38531936778338,
+        "peak_range": [
+          2.241679697464241,
+          3.544671998479669
+        ]
+      }
+    },
+    "acceleration": {
+      "Pitcher averages": {
+        "n": 100,
+        "pearson_r": 0.2248501259421569,
+        "slope_mph_per_x_unit": 0.7406487427959842,
+        "intercept_mph": 77.72202129939605,
+        "peak_range": [
+          6.403731482944797,
+          13.155558802038152
+        ]
+      },
+      "Individual pitches": {
+        "n": 411,
+        "pearson_r": 0.21459684084768674,
+        "slope_mph_per_x_unit": 0.6423021854987938,
+        "intercept_mph": 78.62125575436441,
+        "peak_range": [
+          5.971827203239815,
+          15.144072922186087
+        ]
+      }
+    }
+  },
+  "window_sensitivity": {
+    "35_ms": {
+      "velocity": {
+        "Pitcher averages": {
+          "n": 100,
+          "pearson_r": 0.22461371018631562,
+          "slope_mph_per_x_unit": 4.406462593957502,
+          "intercept_mph": 71.39377185672753,
+          "peak_range": [
+            2.2745337090086593,
+            3.5087335754747606
+          ]
+        },
+        "Individual pitches": {
+          "n": 411,
+          "pearson_r": 0.20040247264221675,
+          "slope_mph_per_x_unit": 3.7360570443470853,
+          "intercept_mph": 73.39671546659798,
+          "peak_range": [
+            2.2420012903727145,
+            3.551523044713492
+          ]
+        }
+      },
+      "acceleration": {
+        "Pitcher averages": {
+          "n": 100,
+          "pearson_r": 0.2212180172044676,
+          "slope_mph_per_x_unit": 0.6780129685748381,
+          "intercept_mph": 77.93786858209799,
+          "peak_range": [
+            6.611171596713636,
+            13.879608443226111
+          ]
+        },
+        "Individual pitches": {
+          "n": 411,
+          "pearson_r": 0.1943877457241824,
+          "slope_mph_per_x_unit": 0.5117086709945017,
+          "intercept_mph": 79.58343649940767,
+          "peak_range": [
+            6.2971640461146885,
+            18.68286154352659
+          ]
+        }
+      }
+    },
+    "50_ms": {
+      "velocity": {
+        "Pitcher averages": {
+          "n": 100,
+          "pearson_r": 0.22481652861205106,
+          "slope_mph_per_x_unit": 4.415091432460088,
+          "intercept_mph": 71.38895268395677,
+          "peak_range": [
+            2.2722364145011875,
+            3.50628348693229
+          ]
+        },
+        "Individual pitches": {
+          "n": 411,
+          "pearson_r": 0.200763035249231,
+          "slope_mph_per_x_unit": 3.7456240871012727,
+          "intercept_mph": 73.38531936778338,
+          "peak_range": [
+            2.241679697464241,
+            3.544671998479669
+          ]
+        }
+      },
+      "acceleration": {
+        "Pitcher averages": {
+          "n": 100,
+          "pearson_r": 0.2248501259421569,
+          "slope_mph_per_x_unit": 0.7406487427959842,
+          "intercept_mph": 77.72202129939605,
+          "peak_range": [
+            6.403731482944797,
+            13.155558802038152
+          ]
+        },
+        "Individual pitches": {
+          "n": 411,
+          "pearson_r": 0.21459684084768674,
+          "slope_mph_per_x_unit": 0.6423021854987938,
+          "intercept_mph": 78.62125575436441,
+          "peak_range": [
+            5.971827203239815,
+            15.144072922186087
+          ]
+        }
+      }
+    },
+    "75_ms": {
+      "velocity": {
+        "Pitcher averages": {
+          "n": 100,
+          "pearson_r": 0.2257332137175749,
+          "slope_mph_per_x_unit": 4.441618581516239,
+          "intercept_mph": 71.32583219737805,
+          "peak_range": [
+            2.2726047261185855,
+            3.502655643784762
+          ]
+        },
+        "Individual pitches": {
+          "n": 411,
+          "pearson_r": 0.20154004940779463,
+          "slope_mph_per_x_unit": 3.7659807907793774,
+          "intercept_mph": 73.33778215537902,
+          "peak_range": [
+            2.2416876183371395,
+            3.5424429198652088
+          ]
+        }
+      },
+      "acceleration": {
+        "Pitcher averages": {
+          "n": 100,
+          "pearson_r": 0.19279568432613356,
+          "slope_mph_per_x_unit": 0.6702646575255738,
+          "intercept_mph": 78.68334719274844,
+          "peak_range": [
+            6.203057047480432,
+            12.616462363807607
+          ]
+        },
+        "Individual pitches": {
+          "n": 411,
+          "pearson_r": 0.19141074230850325,
+          "slope_mph_per_x_unit": 0.6252633917500211,
+          "intercept_mph": 79.05344265515916,
+          "peak_range": [
+            5.744610534924235,
+            12.85738155663199
+          ]
+        }
+      }
+    }
+  },
+  "excluded_trials": [],
+  "trials_with_missing_COM": 0,
+  "peaks_at_first_eligible_sample": {
+    "velocity": 0,
+    "acceleration": 0
+  },
+  "note": "Derived values can differ from the released max_cog_velo_x POI, whose processing and peak window are not replicated. Repeated pitches are not independent; pooled correlations are descriptive."
+}
